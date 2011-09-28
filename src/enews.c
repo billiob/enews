@@ -24,11 +24,13 @@ struct enews_g enews_g = {
     .log_domain = -1,
 };
 
-static Evas_Object *win, *bg, *gl, *bx;
+static Evas_Object *win, *bg, *bx;
 static Elm_Genlist_Item_Class itc1;
 static Elm_Genlist_Item_Class itc_group;
 static Elm_Genlist_Item_Class itc_folder;
 static Elm_Gengrid_Item_Class grid_itc;
+static Elm_Genlist_Item_Class itc1;
+
 
 typedef struct _Rss_Item Rss_Item;
 
@@ -55,20 +57,17 @@ static Rss_Ressource rss_ressources[] = {
     {"http://www.linuxdevices.com", "/backend/headlines.rss"},
     {"http://www.lemonde.fr", "/rss/une.xml"},
     {"http://rss.feedsportal.com", "/c/499/f/413823/index.rss"},
-    NULL
+    {NULL, NULL}
 };
 
 static Eina_Error
-ret_(void *data , int type , Azy_Content *content)
+on_client_return(void *data , int type , Azy_Content *content)
 {
     Azy_Rss *ret;
-    Azy_Rss_Item *it;
     Evas_Object *gl = data;
-    Elm_Genlist_Item *gli, *gli_group, *gli_folder;
-    Eina_List *l;
-    int i;
+    Elm_Genlist_Item *gli, *gli_group;
 
-    printf("RET\n");
+    DBG("RET\n");
 
     if (azy_content_error_is_set(content)) {
         printf("Error encountered: %s\n", azy_content_error_message_get(content));
@@ -93,7 +92,7 @@ ret_(void *data , int type , Azy_Content *content)
                                   gli_group/* parent */,
                                   ELM_GENLIST_ITEM_NONE,
                                   NULL/* func */,
-                                  it);
+                                  NULL);
     return AZY_ERROR_NONE;
 }
 
@@ -141,19 +140,17 @@ _gl_longpress(void *data , Evas_Object *obj , void *event_info)
     printf("longpress %p\n", event_info);
 }
 
-static Elm_Genlist_Item_Class itc1;
-static Elm_Genlist_Item_Class itc1_group;
-
-char *gl_label_get(void *data, Evas_Object *obj , const char *part )
+static char *
+gl_label_get(void *data, Evas_Object *obj , const char *part )
 {
     return NULL;
 }
 
 
-char *gl_group_label_get(void *data, Evas_Object *obj , const char *part )
+static char *
+gl_group_label_get(void *data, Evas_Object *obj , const char *part )
 {
     const char *title;
-    char *buf;
     Azy_Rss *rss = data;
 
     title = azy_rss_title_get(rss);
@@ -163,7 +160,8 @@ char *gl_group_label_get(void *data, Evas_Object *obj , const char *part )
         return NULL;
 }
 
-char *gl_folder_label_get(void *data, Evas_Object *obj , const char *part )
+static char *
+gl_folder_label_get(void *data, Evas_Object *obj , const char *part )
 {
     char buf[256];
     snprintf(buf, sizeof(buf), "Folder #%i",  (int)(long)data);
@@ -204,13 +202,14 @@ _icon_get(void *data, Evas_Object *obj, const char *part)
     return ic;
 }
 
-int _is_html_tag (char *start)
+static int
+_is_html_tag (const char *start)
 {
-    char *html_tags[] = { "html", "body", "s", "b", "u", "i", "a", "strike",
-        "font", "br", "sub", "div", "img", "p", "h6", "em", NULL };
-    int i;
+    const char * const html_tags[] = { "html", "body", "s", "b", "u", "i",
+        "a", "strike", "font", "br", "sub", "div", "img", "p", "h6", "em",
+        NULL };
 
-    for (i = 0; html_tags[i]; i++) {
+    for (int i = 0; html_tags[i]; i++) {
         if (*start == '/')
             start++;
         if (!strncasecmp(html_tags[i], start, strlen(html_tags[i])) &&
@@ -221,7 +220,8 @@ int _is_html_tag (char *start)
     return 0;
 }
 
-int _is_html_img_tag(char *start)
+static int
+_is_html_img_tag(const char *start)
 {
     if (*start == '/')
         start++;
@@ -236,16 +236,19 @@ int _is_html_img_tag(char *start)
 static const char *
 _strip_html (char *msg)
 {
-    char *p, *n, *tkey, *tvalue;
-    char **tmp, *conv[] = {
-        "quot",	"\"",
-        "amp",	"&",
-        "lt",	"<",
-        "gt",	">",
+    char *p, *n;
+#if 0
+    char **tmp, *tkey, *tvalue;
+    const char * const conv[] = {
+        "quot", "\"",
+        "amp", "&",
+        "lt", "<",
+        "gt", ">",
         "nbsp", " ",
         "ouml", "ö",
         NULL
     };
+#endif
 
     const char *img_link = NULL;
 
@@ -323,19 +326,20 @@ _find_http_image(char *txt)
 static void
 _http_img_dl_cb(void *data, const char *file, int status)
 {
-    Elm_Gengrid_Item *git;
+    /* TODO
+    Elm_Gengrid_Item *git = NULL;
 
     elm_gengrid_item_update(git);
+    */
 }
 
-Evas_Object *gl_icon_get(void *data , Evas_Object *obj, const char *part)
+static Evas_Object *
+gl_icon_get(void *data , Evas_Object *obj, const char *part)
 {
-    char buf[PATH_MAX];
     Evas_Object *ic;
     Azy_Rss *rss = data;
     Eina_List *l;
     Azy_Rss_Item *it;
-    Elm_Gengrid_Item *git;
     int i = 0;
 
     if (strcmp("elm.swallow.icon", part))
@@ -384,24 +388,21 @@ Evas_Object *gl_icon_get(void *data , Evas_Object *obj, const char *part)
     return ic;
 }
 
-Eina_Bool gl_state_get(void *data , Evas_Object *obj , const char *part )
+static Eina_Bool
+gl_state_get(void *data , Evas_Object *obj , const char *part )
 {
     return EINA_FALSE;
 }
 
-void gl_del(void *data , Evas_Object *obj )
-{
-}
-
 static void
-gl_sel(void *data, Evas_Object *obj, void *event_info)
+gl_del(void *data , Evas_Object *obj )
 {
-
 }
 
 int
 main(int argc, char **argv)
 {
+    Evas_Object *gl;
     Azy_Client *cli;
     Elm_Theme *theme;
     int i;
@@ -480,7 +481,7 @@ main(int argc, char **argv)
                             (Ecore_Event_Handler_Cb)on_connection,
                             NULL);
     ecore_event_handler_add(AZY_CLIENT_RETURN,
-                            (Ecore_Event_Handler_Cb)ret_,
+                            (Ecore_Event_Handler_Cb)on_client_return,
                             gl);
     ecore_event_handler_add(AZY_CLIENT_DISCONNECTED,
                             (Ecore_Event_Handler_Cb)on_disconnection,

@@ -18,6 +18,12 @@
 #include <Azy.h>
 #include <Elementary.h>
 
+#include "enews.h"
+
+struct enews_g enews_g = {
+    .log_domain = -1,
+};
+
 static Evas_Object *win, *bg, *gl, *bx;
 static Elm_Genlist_Item_Class itc1;
 static Elm_Genlist_Item_Class itc_group;
@@ -407,6 +413,11 @@ main(int argc, char **argv)
     //eina_log_domain_level_set("azy", EINA_LOG_LEVEL_DBG);
     //eina_log_domain_level_set("ecore_con", EINA_LOG_LEVEL_DBG);
 
+    enews_g.log_domain = eina_log_domain_register("enews", NULL);
+    if (enews_g.log_domain < 0) {
+        EINA_LOG_CRIT("could not register log domain 'enews'");
+    }
+
     elm_init(argc, argv);
 
     theme = elm_theme_new();
@@ -479,6 +490,10 @@ main(int argc, char **argv)
     evas_object_show(win);
 
     elm_run();
+
+    if (enews_g.log_domain >= 0) {
+        eina_log_domain_unregister(enews_g.log_domain);
+    }
 
     azy_client_free(cli);
     elm_shutdown();

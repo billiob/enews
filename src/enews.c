@@ -271,38 +271,34 @@ _strip_html (char *msg)
         }
     }
 
-    /* /\* Change all &*; to charaters we can use *\/ */
-    /* for (p = msg; *p; p++) */
-    /*   { */
-    /* 	char *key; */
+#if 0
+    /* Change all &*; to charaters we can use */
+    for (p = msg; *p; p++) {
+        char *key;
 
-    /* 	/\* Check to see if we start with a '&', end with a ';', and they are */
-    /* 	 * within a reasonable distance *\/ */
-    /* 	if (*p == '&' && (n = strchr(p, ';')) && p - n < 6) */
-    /* 	  { */
-    /* 	     key = p + 1; */
-    /* 	     *n = 0; */
+        /* Check to see if we start with a '&', end with a ';', and they
+         * are within a reasonable distance */
+        if (*p == '&' && (n = strchr(p, ';')) && p - n < 6) {
+            key = p + 1;
+            *n = 0;
 
-    /* 	     for (i = 0; conv[i]; i++) */
-    /* 	       { */
-    /* 		  if (!strcmp(key, conv[i])) */
-    /* 		    { */
-    /* 		       *p = *conv[i]; */
-    /* 		    } */
+            for (i = 0; conv[i]; i++) {
+                if (!strcmp(key, conv[i])) {
+                    *p = *conv[i];
+                }
+            }
+            /* Look for this key in our table */
+            for(tmp = conv; *tmp; tkey = *tmp++, tvalue = *tmp++) {
+                if(!strcmp(key, tkey)) {
+                    *p = *tvalue;
+                    strcpy(p + 1, n + 1);
+                    break;
+                }
+            }
+        }
+    }
+#endif
 
-    /* 	       } */
-    /* 	     /\* Look for this key in our table *\/ */
-    /* 	     for(tmp = conv; *tmp; tkey = *tmp++, tvalue = *tmp++) */
-    /* 	       { */
-    /* 		  if(!strcmp(key, tkey)) */
-    /* 		    { */
-    /* 		       *p = *tvalue; */
-    /* 		       strcpy(p + 1, n + 1); */
-    /* 		       break; */
-    /* 		    } */
-    /* 	       } */
-    /* 	  } */
-    /*   } */
     return img_link;
 }
 

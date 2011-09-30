@@ -53,7 +53,7 @@ PKG_PROG_PKG_CONFIG
 
 ### Checks for libraries
 
-PKG_CHECK_MODULES([ENEWS], [eina eet ecore ecore-con azy elementary])
+PKG_CHECK_MODULES([ENEWS], [eina eet ecore ecore-con azy efreet elementary])
 
 ### Checks for header files
 AC_HEADER_STDC

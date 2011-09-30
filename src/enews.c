@@ -232,7 +232,7 @@ _is_html_img_tag(const char *start)
     return 0;
 }
 
-/* stollen from nexus project : http://sourceforge.net/projects/nexus/ */
+/* stolen from nexus project : http://sourceforge.net/projects/nexus/ */
 static const char *
 _strip_html (char *msg)
 {

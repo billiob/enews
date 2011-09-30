@@ -67,19 +67,22 @@ on_client_return(void *data , int type , Azy_Content *content)
     Evas_Object *gl = data;
     Elm_Genlist_Item *gli, *gli_group;
 
-    DBG("RET\n");
+    DBG("");
 
     if (azy_content_error_is_set(content)) {
-        printf("Error encountered: %s\n", azy_content_error_message_get(content));
+        ERR("Error encountered: %s", azy_content_error_message_get(content));
         return azy_content_error_code_get(content);
     }
 
     ret = azy_content_return_get(content);
 
-    if(!ret)
-        return 0;
+    if (!ret) {
+        DBG("no content");
+        return AZY_ERROR_NONE;
+    }
 
-    gli_group = elm_genlist_item_append(gl, &itc_group,
+    gli_group = elm_genlist_item_append(gl,
+                                        &itc_group,
                                         ret,
                                         NULL,
                                         ELM_GENLIST_ITEM_GROUP,
@@ -97,9 +100,9 @@ on_client_return(void *data , int type , Azy_Content *content)
 }
 
 static Eina_Bool
-on_disconnection(void *data , int type , Azy_Client *ev)
+on_disconnection(void *data , int type , Azy_Client *cli)
 {
-    printf("%s:%s:%d\n", __FILE__, __PRETTY_FUNCTION__, __LINE__);
+    DBG("cli=%p", cli);
     return ECORE_CALLBACK_RENEW;
 }
 
@@ -108,14 +111,14 @@ on_connection(void *data , int type , Azy_Client *cli)
 {
     Azy_Client_Call_Id id;
 
-    printf("Connected %p\n", cli);
+    DBG("connected %p", cli);
 
     if (!azy_client_current(cli)) {
         id = azy_client_blank(cli, AZY_NET_TYPE_GET, NULL, NULL, NULL);
         EINA_SAFETY_ON_TRUE_RETURN_VAL(!id, ECORE_CALLBACK_CANCEL);
         //azy_client_callback_free_set(cli, id, (Ecore_Cb)azy_rss_free);
     } else {
-        printf("Nor current cli?!\n");
+        ERR("not current cli?!");
     }
 
     return ECORE_CALLBACK_RENEW;
@@ -125,19 +128,19 @@ on_connection(void *data , int type , Azy_Client *cli)
 static void
 _gl_selected(void *data , Evas_Object *obj , void *event_info)
 {
-    printf("selected: %p\n", event_info);
+    DBG("selected: %p", event_info);
 }
 
 static void
 _gl_clicked(void *data , Evas_Object *obj , void *event_info)
 {
-    printf("clicked: %p\n", event_info);
+    DBG("clicked: %p", event_info);
 }
 
 static void
 _gl_longpress(void *data , Evas_Object *obj , void *event_info)
 {
-    printf("longpress %p\n", event_info);
+    DBG("longpress %p", event_info);
 }
 
 static char *
@@ -236,7 +239,6 @@ _is_html_img_tag(const char *start)
 static const char *
 _strip_html (char *msg)
 {
-    char *p, *n;
 #if 0
     char **tmp, *tkey, *tvalue;
     const char * const conv[] = {
@@ -249,11 +251,12 @@ _strip_html (char *msg)
         NULL
     };
 #endif
-
     const char *img_link = NULL;
 
     /* Remove all known HTML tags */
-    for (p = msg; *p; p++) {
+    for (char *p = msg; *p; p++) {
+        char *n;
+
         while (*p == '<' && _is_html_tag(p + 1) &&
                (n = strchr(p, '>'))) {
             if (!img_link && _is_html_img_tag(p + 1)) {
@@ -376,10 +379,12 @@ gl_icon_get(void *data , Evas_Object *obj, const char *part)
         if (http_image) {
             char dir[4096];
 
-            snprintf(dir, sizeof(dir), "%s/%s", efreet_cache_home_get(), azy_rss_title_get(rss));
+            snprintf(dir, sizeof(dir), "%s/enews/%s",
+                     efreet_cache_home_get(), azy_rss_title_get(rss));
             ecore_file_mkdir(dir);
             rss_item->image = eina_stringshare_printf("%s/%d.jpg", dir, i);
-            ecore_file_download(http_image, rss_item->image, _http_img_dl_cb, NULL, rss_item->git, NULL);
+            ecore_file_download(http_image, rss_item->image, _http_img_dl_cb,
+                                NULL, rss_item->git, NULL);
         }
 
         i++;
@@ -470,7 +475,7 @@ main(int argc, char **argv)
 
     for (i = 0; rss_ressources[i].host; i++) {
         cli = azy_client_new();
-        printf("Add cli %p\n", cli);
+        DBG("Add cli %p", cli);
         azy_client_host_set(cli,  rss_ressources[i].host, 80);
         azy_client_connect(cli, EINA_FALSE);
         azy_net_uri_set(azy_client_net_get(cli), rss_ressources[i].uri);

@@ -379,10 +379,15 @@ gl_icon_get(void *data , Evas_Object *obj, const char *part)
         if (http_image) {
             char dir[4096];
 
-            snprintf(dir, sizeof(dir), "%s/enews/%s",
+            /*TODO: cleanup path */
+            snprintf(dir, sizeof(dir), "%s/enews/%s/",
                      efreet_cache_home_get(), azy_rss_title_get(rss));
-            ecore_file_mkdir(dir);
-            rss_item->image = eina_stringshare_printf("%s/%d.jpg", dir, i);
+            if (!ecore_file_mkpath(dir)) {
+                ERR("can not create dir '%s': %m", dir);
+            }
+
+            rss_item->image = eina_stringshare_printf("%s%d.jpg", dir, i);
+            ecore_file_unlink(rss_item->image);
             ecore_file_download(http_image, rss_item->image, _http_img_dl_cb,
                                 NULL, rss_item->git, NULL);
         }

@@ -5,8 +5,10 @@
 ABOUT-NLS
 Makefile
 Makefile.in
+/data/enews.edj
+/src/enews
 /aclocal.m4
-autom4te.cache/
+/autom4te.cache/
 /config.guess
 /config.h
 /config.h.in
@@ -70,6 +72,5 @@ autom4te.cache/
 /po/stamp-po
 /src/.deps/
 /src/.libs/
-/src/enews
 /stamp-h1
 /compile

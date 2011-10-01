@@ -25,30 +25,23 @@ struct enews_g enews_g = {
 };
 
 static Evas_Object *win, *bg, *bx;
-static Elm_Genlist_Item_Class itc1;
 static Elm_Genlist_Item_Class itc_group;
 static Elm_Genlist_Item_Class itc_folder;
 static Elm_Gengrid_Item_Class grid_itc;
 static Elm_Genlist_Item_Class itc1;
 
 
-typedef struct _Rss_Item Rss_Item;
-
-struct _Rss_Item
-{
+typedef struct _Rss_Item {
     const char *image;
     const char *title;
     const char *description;
     Elm_Gengrid_Item *git;
-};
+} Rss_Item;
 
-typedef struct _Rss_Ressource Rss_Ressource;
-
-struct _Rss_Ressource
-{
+typedef struct _Rss_Ressource {
     const char *host;
     const char *uri;
-};
+} Rss_Ressource;
 
 static Rss_Ressource rss_ressources[] = {
     {"http://www.engadget.com", "/rss.xml"},
@@ -67,19 +60,20 @@ on_client_return(void *data , int type , Azy_Content *content)
     Evas_Object *gl = data;
     Elm_Genlist_Item *gli, *gli_group;
 
-    DBG("");
-
     if (azy_content_error_is_set(content)) {
         ERR("Error encountered: %s", azy_content_error_message_get(content));
         return azy_content_error_code_get(content);
     }
 
-    ret = azy_content_return_get(content);
+    DBG("type=%d", type);
 
+    ret = azy_content_return_get(content);
     if (!ret) {
         DBG("no content");
         return AZY_ERROR_NONE;
     }
+
+    DBG("ret=%p", ret);
 
     gli_group = elm_genlist_item_append(gl,
                                         &itc_group,
@@ -111,7 +105,7 @@ on_connection(void *data , int type , Azy_Client *cli)
 {
     Azy_Client_Call_Id id;
 
-    DBG("connected %p", cli);
+    DBG("cli=%p", cli);
 
     if (!azy_client_current(cli)) {
         id = azy_client_blank(cli, AZY_NET_TYPE_GET, NULL, NULL, NULL);
@@ -156,6 +150,7 @@ gl_group_label_get(void *data, Evas_Object *obj , const char *part )
     const char *title;
     Azy_Rss *rss = data;
 
+    DBG("rss=%p", rss);
     title = azy_rss_title_get(rss);
     if (title)
         return strdup(title);

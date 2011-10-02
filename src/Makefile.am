@@ -3,7 +3,8 @@ MAINTAINERCLEANFILES = Makefile.in
 bin_PROGRAMS = enews
 
 enews_SOURCES = \
-	enews.c
+	enews.c \
+	dashboard.c
 
 enews_CFLAGS = \
 	-I$(top_srcdir)/src/lib \

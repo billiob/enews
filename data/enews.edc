@@ -2,14 +2,14 @@ collections {
     group { name: "enews/dashboard/item"; // {{{
         styles {
             style { name: "title";
-                base: "font=Sans:style=Bold font_size=12 align=left valign=0 color=#000 wrap=word";
+                base: "font=Sans:style=Bold font_size=12 align=left color=#000 wrap=word";
                 tag:  "br" "\n";
                 tag:  "ps" "ps";
                 tag:  "hilight" "+ font=Sans:style=Bold";
                 tag:  "tab" "\t";
             }
             style { name: "content";
-                base: "font=Sans font_size=10 align=left valign=0 color=#000 wrap=word";
+                base: "font=Sans font_size=10 align=left color=#000 wrap=word";
                 tag:  "br" "\n";
                 tag:  "ps" "ps";
                 tag:  "hilight" "+ font=Sans:style=Bold";
@@ -24,20 +24,23 @@ collections {
                 scale: 1;
                 description {
                     min: 100 300;
+                    max: -1 300;
                     state: "default" 0.0;
                     color: 255 255 255 255;
                     rel1 {
                         relative: 0.0 0.0;
+                        offset: 2 2;
                     }
                     rel2 {
                         relative: 1 1;
+                        offset: -2 -2;
                     }
                 }
             }
+
             part { name: "title";
                 type: TEXTBLOCK;
                 mouse_events: 0;
-                scale: 1;
                 description {
                     state: "default" 0.0;
                     rel1 {
@@ -56,13 +59,16 @@ collections {
             part { name: "content";
                 type: TEXTBLOCK;
                 mouse_events: 0;
-                scale: 1;
                 description {
                     state: "default" 0.0;
                     rel1 {
+                        /*
                         relative: 0.0  1.0;
-                        to_y: "title";
                         to_x: "clip";
+                        to_y: "title";
+                        */
+                        relative: 0.0  0.4;
+                        to: "clip";
                     }
                     rel2 {
                         relative: 1.0  1.0;
@@ -70,6 +76,7 @@ collections {
                     }
                     text.style: "content";
                     text.min: 0 0;
+                    text.ellipsis: 1.0;
                 }
             }
         }

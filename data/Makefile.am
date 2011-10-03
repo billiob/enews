@@ -3,7 +3,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 EDJE_FLAGS = -v -id $(top_srcdir)/data/images
 
-filesdir = $(datadir)
+filesdir = $(datadir)/enews
 files_DATA = enews.edj
 
 EXTRA_DIST = \

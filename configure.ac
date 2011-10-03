@@ -69,6 +69,8 @@ AC_C_CONST
 AM_PROG_CC_C_O
 AC_C___ATTRIBUTE__
 
+AC_DEFINE_DIR([DATADIR], [datadir], [Where data are placed to.])
+
 AC_CONFIG_FILES([
 Makefile
 data/Makefile

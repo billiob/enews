@@ -40,7 +40,8 @@ void dashboard_item_add(Rss_Item *item)
 
     ly = elm_layout_add(enews_g.win);
 
-    elm_layout_file_set(ly, "data/enews.edj", "enews/dashboard/item");
+    elm_layout_file_set(ly, DATADIR"/enews/enews.edj",
+                        "enews/dashboard/item");
     evas_object_size_hint_weight_set(ly,
                                      0,
                                      EVAS_HINT_EXPAND);

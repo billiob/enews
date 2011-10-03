@@ -44,12 +44,8 @@ void dashboard_item_add(Rss_Item *item)
     evas_object_size_hint_weight_set(ly,
                                      0,
                                      EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(ly, 0, EVAS_HINT_FILL);
+    evas_object_size_hint_fill_set(ly, 0, 0);
 
-    /*
-    elm_object_text_part_set(ly, "title", item->title);
-    elm_object_text_part_set(ly, "content", item->description);
-    */
     elm_object_text_part_set(ly, "title", item->title);
     elm_object_text_part_set(ly, "content", item->description);
 

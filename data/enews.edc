@@ -53,6 +53,7 @@ collections {
                     }
                     text.style: "title";
                     text.min: 0 0;
+                    text.align: 0 0;
                 }
             }
 
@@ -76,7 +77,8 @@ collections {
                     }
                     text.style: "content";
                     text.min: 0 0;
-                    text.ellipsis: 1.0;
+                    text.ellipsis: 0.0;
+                    text.align: 0 0;
                 }
             }
         }

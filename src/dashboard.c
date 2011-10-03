@@ -49,6 +49,8 @@ void dashboard_item_add(Rss_Item *item)
 
     elm_object_text_part_set(ly, "title", item->title);
     elm_object_text_part_set(ly, "content", item->description);
+    DBG("item->title='%s'", item->title);
+    DBG("item->description='%s'", item->description);
 
     elm_box_pack_end(_G.bx, ly);
     evas_object_show(ly);

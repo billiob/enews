@@ -319,7 +319,6 @@ main(int argc, char **argv)
 {
     Evas_Object *bg;
     Azy_Client *cli = NULL;
-    Elm_Theme *theme;
     int i;
 
     eina_init();
@@ -333,15 +332,10 @@ main(int argc, char **argv)
 
     elm_init(argc, argv);
 
-    theme = elm_theme_new();
-    elm_theme_overlay_add(theme, "./default.edj");
-
 
     enews_g.win = elm_win_add(NULL, "Enews RSS Reader", ELM_WIN_BASIC);
     elm_win_title_set(enews_g.win, "Enews");
     elm_win_autodel_set(enews_g.win, 1);
-
-    elm_object_theme_set(enews_g.win, theme);
 
     bg = elm_bg_add(enews_g.win);
     elm_win_resize_object_add(enews_g.win, bg);

@@ -30,139 +30,6 @@ struct enews_g enews_g = {
     }
 };
 
-/* HTML handling {{{ */
-
-static int
-_is_html_img_tag(const char *start)
-{
-    if (*start == '/')
-        start++;
-    if (!strncasecmp("img", start, strlen("img")) &&
-        !isalpha(*(start + strlen("img"))))
-        return 1;
-
-    return 0;
-}
-
-static int
-_is_html_tag (const char *start)
-{
-    const char * const html_tags[] = { "html", "body", "s", "b", "u", "i",
-        "a", "strike", "font", "br", "sub", "div", "img", "p", "h6", "em",
-        NULL };
-
-    for (int i = 0; html_tags[i]; i++) {
-        if (*start == '/')
-            start++;
-        if (!strncasecmp(html_tags[i], start, strlen(html_tags[i])) &&
-            !isalpha(*(start + strlen(html_tags[i]))))
-            return 1;
-    }
-
-    return 0;
-}
-
-/* stolen from nexus project : http://sourceforge.net/projects/nexus/ */
-static const char *
-_strip_html (char *msg)
-{
-#if 0
-    char **tmp, *tkey, *tvalue;
-    const char * const conv[] = {
-        "quot", "\"",
-        "amp", "&",
-        "lt", "<",
-        "gt", ">",
-        "nbsp", " ",
-        "ouml", "ö",
-        NULL
-    };
-#endif
-    const char *img_link = NULL;
-
-    /* Remove all known HTML tags */
-    for (char *p = msg; *p; p++) {
-        char *n;
-
-        while (*p == '<' && _is_html_tag(p + 1) &&
-               (n = strchr(p, '>'))) {
-            if (!img_link && _is_html_img_tag(p + 1)) {
-                char *a, *b;
-                char *buf = strndup(p + 1, n - p);
-
-                a = strstr(buf, "src=\"");
-                if (a) {
-                    a+= strlen("src=\"");
-                    b = strstr(a, "\"");
-                    if (b) {
-                        img_link = eina_stringshare_add_length(a, b-a);
-                        free(buf);
-                    }
-                }
-            }
-            /* Replace <br> with \n */
-            if (!strncasecmp(p, "<br>", strlen("<br>"))) {
-                *p = '\n';
-                strcpy(p + 1, n + 1);
-                break;
-            }
-            strcpy(p, n + 1);
-        }
-    }
-
-#if 0
-    /* Change all &*; to charaters we can use */
-    for (p = msg; *p; p++) {
-        char *key;
-
-        /* Check to see if we start with a '&', end with a ';', and they
-         * are within a reasonable distance */
-        if (*p == '&' && (n = strchr(p, ';')) && p - n < 6) {
-            key = p + 1;
-            *n = 0;
-
-            for (i = 0; conv[i]; i++) {
-                if (!strcmp(key, conv[i])) {
-                    *p = *conv[i];
-                }
-            }
-            /* Look for this key in our table */
-            for(tmp = conv; *tmp; tkey = *tmp++, tvalue = *tmp++) {
-                if(!strcmp(key, tkey)) {
-                    *p = *tvalue;
-                    strcpy(p + 1, n + 1);
-                    break;
-                }
-            }
-        }
-    }
-#endif
-
-    return img_link;
-}
-
-/* }}} */
-
-static void
-_http_img_dl_cb(void *data, const char *file, int status)
-{
-    /* TODO
-    Elm_Gengrid_Item *git = NULL;
-
-    elm_gengrid_item_update(git);
-    */
-}
-static const char *
-_find_http_image(char *txt)
-{
-    const char *http_img;
-
-    //printf("%s\n", txt);
-    http_img = _strip_html(txt);
-
-    return http_img;
-}
-
 static Eina_Error
 on_client_return(void *data , int type , Azy_Content *content)
 {
@@ -190,41 +57,18 @@ on_client_return(void *data , int type , Azy_Content *content)
     DBG("title='%s'", azy_rss_title_get(rss));
 
     EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
-        const char *http_image;
         Rss_Item *rss_item;
-        char *tmp;
 
         rss_item = calloc(1, sizeof(Rss_Item));
 
-        tmp = strdup(azy_rss_item_desc_get(it));
-        rss_item->description = eina_stringshare_add(tmp);
+        rss_item->description = extract_text_from_html(azy_rss_item_desc_get(it));
         rss_item->title = azy_rss_item_title_get(it);
-        http_image = _find_http_image(tmp);
-        free(tmp);
-
-        if (http_image) {
-            char dir[4096];
-
-            /*TODO: cleanup path */
-            snprintf(dir, sizeof(dir), "%s/enews/%s/",
-                     efreet_cache_home_get(), azy_rss_title_get(rss));
-            if (!ecore_file_mkpath(dir)) {
-                ERR("can not create dir '%s': %m", dir);
-            }
-
-            rss_item->image = eina_stringshare_printf("%s%d.jpg", dir, i);
-            ecore_file_unlink(rss_item->image);
-            ecore_file_download(http_image, rss_item->image, _http_img_dl_cb,
-                                NULL, rss_item, NULL);
-
-            rss_item->pending_img_dl = true;
-        }
+        /* TODO: image from <media:content> ? */
 
         i++;
 
         dashboard_item_add(rss_item);
-        if (!http_image)
-            free(rss_item);
+        /* TODO: free rss_item and item->description, and it?? */
     }
 
     return AZY_ERROR_NONE;

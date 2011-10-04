@@ -36,4 +36,7 @@ extern struct enews_g enews_g;
 /* Dashboard */
 void dashboard_initialize(void);
 void dashboard_item_add(Rss_Item *item);
+
+/* Utils */
+char *extract_text_from_html(const char *src);
 #endif

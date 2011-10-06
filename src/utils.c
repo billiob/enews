@@ -32,6 +32,16 @@ _skip_till_end_html_mark(const char *str)
     return str;
 }
 
+static const char *
+_skip_till_end_comment(const char *str)
+{
+    char *found = strstr(str, "-->");
+
+    if (found)
+        str = found += strlen("-->");
+
+    return str;
+}
 
 char *extract_text_from_html(const char *src)
 {
@@ -57,7 +67,7 @@ char *extract_text_from_html(const char *src)
                 "q", "samp", "script", "select", "small", "span", "strong",
                 "style", "sub", "sup", "table", "tbody", "td", "textarea",
                 "tfoot", "th", "thead", "title", "tr", "tt", "ul", "var",
-                NULL};
+                "!--", NULL};
 
             eina_strbuf_append_length(sb, old_pos, src - old_pos);
             src = _skip_spaces(++src);
@@ -68,6 +78,12 @@ char *extract_text_from_html(const char *src)
             for (int i = 0; html_tags[i]; i++) {
                 if (!strncasecmp(html_tags[i], src, strlen(html_tags[i])) &&
                     !isalpha(*(src + strlen(html_tags[i])))) {
+
+                    src += strlen(html_tags[i]);
+                    if (!strncmp(html_tags[i], "!--", strlen("!--"))) {
+                        src = _skip_till_end_comment(src);
+                        break;
+                    }
                     src = _skip_till_end_html_mark(src);
                     if (!strncmp(html_tags[i], "br", strlen("br")))
                         eina_strbuf_append_char(sb, '\n');

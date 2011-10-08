@@ -38,7 +38,7 @@ _skip_till_end_comment(const char *str)
     char *found = strstr(str, "-->");
 
     if (found)
-        str = found += strlen("-->");
+        str = found + strlen("-->");
 
     return str;
 }

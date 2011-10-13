@@ -37,6 +37,20 @@ void dashboard_initialize(void)
     //elm_box_pack_end(enews_g.bx, _G.sc);
 }
 
+static Eina_Bool
+timer_cb(void *data)
+{
+    Evas_Coord w, h;
+    Evas_Object *ly = data;
+
+    evas_object_size_hint_min_get(ly, &w, &h);
+    ERR("min: %d, %d", w, h);
+    evas_object_size_hint_max_get(ly, &w, &h);
+    ERR("max: %d, %d", w, h);
+
+    return EINA_TRUE;
+}
+
 void dashboard_item_add(Rss_Item *item)
 {
     Evas_Object *ly;
@@ -62,4 +76,6 @@ void dashboard_item_add(Rss_Item *item)
 
     elm_box_pack_end(_G.bx, ly);
     evas_object_show(ly);
+
+    ecore_timer_add(0.5, timer_cb, ly);
 }

@@ -53,19 +53,19 @@ timer_cb(void *data)
 
 void dashboard_item_add(Rss_Item *item)
 {
-    Evas_Object *ly;
+    Evas_Object *edj;
 
     DBG("");
 
-    ly = elm_layout_add(enews_g.win);
+    edj = edje_object_add(evas_object_evas_get(enews_g.win));
 
-    elm_layout_file_set(ly, DATADIR"/enews/enews.edj",
-                        "enews/dashboard/item");
+    edje_object_file_set(edj, DATADIR"/enews/enews.edj",
+                         "enews/dashboard/item");
 
-    evas_object_size_hint_weight_set(ly,
+    evas_object_size_hint_weight_set(edj,
                                      0,
                                      0);
-    evas_object_size_hint_align_set(ly, EVAS_HINT_FILL, 0);
+    evas_object_size_hint_align_set(edj, EVAS_HINT_FILL, 0);
 
     /*
     elm_object_text_part_set(ly, "title", item->title);
@@ -74,8 +74,8 @@ void dashboard_item_add(Rss_Item *item)
     DBG("item->description='%s'", item->description);
     */
 
-    elm_box_pack_end(_G.bx, ly);
-    evas_object_show(ly);
+    elm_box_pack_end(_G.bx, edj);
+    evas_object_show(edj);
 
-    ecore_timer_add(0.5, timer_cb, ly);
+    ecore_timer_add(0.5, timer_cb, edj);
 }

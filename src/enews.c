@@ -59,7 +59,7 @@ on_client_return(void *data , int type , Azy_Content *content)
     EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
         Rss_Item *rss_item;
 
-        if (i > 3)
+        if (i >= 1)
             continue;
 
         rss_item = calloc(1, sizeof(Rss_Item));
@@ -166,7 +166,6 @@ main(int argc, char **argv)
 {
     Evas_Object *bg;
     Azy_Client *cli = NULL;
-    int i;
 
     eina_init();
     ecore_init();
@@ -182,7 +181,8 @@ main(int argc, char **argv)
 
     enews_g.win = elm_win_add(NULL, "Enews RSS Reader", ELM_WIN_BASIC);
     elm_win_title_set(enews_g.win, "Enews");
-    elm_win_autodel_set(enews_g.win, 1);
+    elm_win_autodel_set(enews_g.win, EINA_TRUE);
+    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
     bg = elm_bg_add(enews_g.win);
     elm_win_resize_object_add(enews_g.win, bg);
@@ -203,7 +203,8 @@ main(int argc, char **argv)
 
     dashboard_initialize();
 
-    for (i = 0; enews_g.rss_ressources[i].host; i++) {
+    /*
+    for (int i = 0; enews_g.rss_ressources[i].host; i++) {
         cli = azy_client_new();
         DBG("add cli=%p", cli);
         azy_client_host_set(cli,  enews_g.rss_ressources[i].host, 80);
@@ -212,6 +213,8 @@ main(int argc, char **argv)
                         enews_g.rss_ressources[i].uri);
         azy_net_version_set(azy_client_net_get(cli), 0);
     }
+    */
+    dashboard_item_add(NULL);
 
     ecore_event_handler_add(AZY_CLIENT_CONNECTED,
                             (Ecore_Event_Handler_Cb)on_connection,

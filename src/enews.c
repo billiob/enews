@@ -59,9 +59,6 @@ on_client_return(void *data , int type , Azy_Content *content)
     EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
         Rss_Item *rss_item;
 
-        if (i >= 1)
-            continue;
-
         rss_item = calloc(1, sizeof(Rss_Item));
 
         rss_item->description = extract_text_from_html(azy_rss_item_desc_get(it));
@@ -203,7 +200,6 @@ main(int argc, char **argv)
 
     dashboard_initialize();
 
-    /*
     for (int i = 0; enews_g.rss_ressources[i].host; i++) {
         cli = azy_client_new();
         DBG("add cli=%p", cli);
@@ -213,8 +209,6 @@ main(int argc, char **argv)
                         enews_g.rss_ressources[i].uri);
         azy_net_version_set(azy_client_net_get(cli), 0);
     }
-    */
-    dashboard_item_add(NULL);
 
     ecore_event_handler_add(AZY_CLIENT_CONNECTED,
                             (Ecore_Event_Handler_Cb)on_connection,

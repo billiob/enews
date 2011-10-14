@@ -186,17 +186,15 @@ main(int argc, char **argv)
     evas_object_size_hint_weight_set(bg, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_show(bg);
 
-    /*
     enews_g.bx = elm_box_add(enews_g.win);
     elm_box_horizontal_set(enews_g.bx, EINA_FALSE);
     elm_box_homogeneous_set(enews_g.bx, EINA_FALSE);
-    evas_object_size_hint_weight_set(enews_g.bx, EVAS_HINT_EXPAND,
-                                     EVAS_HINT_EXPAND);
+    evas_object_size_hint_weight_set(enews_g.bx,
+                                     EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_fill_set(enews_g.bx, EVAS_HINT_FILL,
                                    EVAS_HINT_FILL);
     elm_win_resize_object_add(enews_g.win, enews_g.bx);
     evas_object_show(enews_g.bx);
-    */
 
     dashboard_initialize();
 

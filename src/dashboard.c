@@ -54,6 +54,7 @@ timer_cb(void *data)
 void dashboard_item_add(Rss_Item *item)
 {
     Evas_Object *edj;
+    Evas_Coord w, h;
 
     DBG("");
 
@@ -61,6 +62,11 @@ void dashboard_item_add(Rss_Item *item)
 
     edje_object_file_set(edj, DATADIR"/enews/enews.edj",
                          "enews/dashboard/item");
+
+    edje_object_size_min_get(edj, &w, &h);
+    evas_object_size_hint_min_set(edj, w, h);
+    edje_object_size_max_get(edj, &w, &h);
+    evas_object_size_hint_max_set(edj, w, h);
 
     evas_object_size_hint_weight_set(edj,
                                      0,

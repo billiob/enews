@@ -38,8 +38,6 @@ void dashboard_item_add(Rss_Item *item)
     Evas_Object *edj;
     Evas_Coord w, h;
 
-    DBG("");
-
     edj = edje_object_add(evas_object_evas_get(enews_g.win));
 
     edje_object_file_set(edj, DATADIR"/enews/enews.edj",
@@ -50,17 +48,11 @@ void dashboard_item_add(Rss_Item *item)
     edje_object_size_max_get(edj, &w, &h);
     evas_object_size_hint_max_set(edj, w, h);
 
-    evas_object_size_hint_weight_set(edj,
-                                     0,
-                                     0);
+    evas_object_size_hint_weight_set(edj, 0, 0);
     evas_object_size_hint_align_set(edj, EVAS_HINT_FILL, 0);
 
-    /*
-    elm_object_text_part_set(ly, "title", item->title);
-    elm_object_text_part_set(ly, "content", item->description);
-    DBG("item->title='%s'", item->title);
-    DBG("item->description='%s'", item->description);
-    */
+    edje_object_part_text_set(edj, "title", item->title);
+    edje_object_part_text_set(edj, "content", item->description);
 
     elm_box_pack_end(_G.bx, edj);
     evas_object_show(edj);

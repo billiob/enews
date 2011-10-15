@@ -100,6 +100,8 @@ char *extract_text_from_html(const char *src)
 
     eina_strbuf_append_length(sb, old_pos, src - old_pos);
 
+    eina_strbuf_trim(sb);
+
     res = eina_strbuf_string_steal(sb);
 
     eina_strbuf_free(sb);

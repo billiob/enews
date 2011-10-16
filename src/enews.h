@@ -28,7 +28,8 @@ typedef struct _Rss_Ressource {
 struct enews_g {
     int log_domain;
     Evas_Object *win,
-                *bx;
+                *bx,
+                *tb;
     Rss_Ressource rss_ressources[];
 };
 extern struct enews_g enews_g;

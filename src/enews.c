@@ -99,6 +99,36 @@ on_connection(void *data , int type , Azy_Client *cli)
     return ECORE_CALLBACK_RENEW;
 }
 
+/* Toolbar {{{ */
+
+static void
+_add_rss_cb(void *data, Evas_Object *obj __UNUSED__,
+            void *event_info __UNUSED__)
+{
+    /* TODO */
+    DBG("TODO");
+}
+
+static void
+_toolbar_setup(void)
+{
+    Elm_Toolbar_Item *item;
+
+    enews_g.tb = elm_toolbar_add(enews_g.win);
+    elm_toolbar_homogeneous_set(enews_g.tb, EINA_FALSE);
+    elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
+    evas_object_size_hint_weight_set(enews_g.tb, 0.0, 0.0);
+    evas_object_size_hint_align_set(enews_g.tb, EVAS_HINT_FILL, 0.0);
+    elm_box_pack_start(enews_g.bx, enews_g.tb);
+    evas_object_show(enews_g.tb);
+
+    item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
+                                   _add_rss_cb, NULL);
+}
+
+/* }}} */
+/* Main {{{ */
+
 int
 main(int argc, char **argv)
 {
@@ -136,6 +166,8 @@ main(int argc, char **argv)
                                    EVAS_HINT_FILL);
     elm_win_resize_object_add(enews_g.win, enews_g.bx);
     evas_object_show(enews_g.bx);
+
+    _toolbar_setup();
 
     dashboard_initialize();
 
@@ -178,4 +210,4 @@ main(int argc, char **argv)
 
     return 0;
 }
-
+/* }}} */

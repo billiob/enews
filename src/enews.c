@@ -99,65 +99,6 @@ on_connection(void *data , int type , Azy_Client *cli)
     return ECORE_CALLBACK_RENEW;
 }
 
-
-#if 0
-static Evas_Object *
-gl_icon_get(void *data , Evas_Object *obj, const char *part)
-{
-    Evas_Object *ic;
-    Azy_Rss *rss = data;
-    Eina_List *l;
-    Azy_Rss_Item *it;
-    int i = 0;
-
-    if (strcmp("elm.swallow.icon", part))
-        return NULL;
-
-    ic = elm_gengrid_add(obj);
-    elm_gengrid_item_size_set(ic, 160, 160);
-    elm_gengrid_multi_select_set(ic, EINA_FALSE);
-    elm_gengrid_bounce_set(ic, EINA_TRUE, EINA_FALSE);
-    evas_object_size_hint_weight_set(ic, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_align_set(ic, EVAS_HINT_FILL, EVAS_HINT_FILL);
-    elm_gengrid_horizontal_set(ic, EINA_TRUE);
-
-    EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
-        const char *http_image;
-        Rss_Item *rss_item;
-        char *tmp;
-
-        rss_item = calloc(1, sizeof(Rss_Item));
-
-        rss_item->git = elm_gengrid_item_append(ic, &grid_itc, rss_item, NULL, NULL);
-        tmp = strdup(azy_rss_item_desc_get(it));
-        http_image = _find_http_image(tmp);
-        rss_item->description = eina_stringshare_add(tmp);
-        rss_item->title = azy_rss_item_title_get(it);
-        free(tmp);
-
-        if (http_image) {
-            char dir[4096];
-
-            /*TODO: cleanup path */
-            snprintf(dir, sizeof(dir), "%s/enews/%s/",
-                     efreet_cache_home_get(), azy_rss_title_get(rss));
-            if (!ecore_file_mkpath(dir)) {
-                ERR("can not create dir '%s': %m", dir);
-            }
-
-            rss_item->image = eina_stringshare_printf("%s%d.jpg", dir, i);
-            ecore_file_unlink(rss_item->image);
-            ecore_file_download(http_image, rss_item->image, _http_img_dl_cb,
-                                NULL, rss_item->git, NULL);
-        }
-
-        i++;
-    }
-
-    return ic;
-}
-#endif
-
 int
 main(int argc, char **argv)
 {

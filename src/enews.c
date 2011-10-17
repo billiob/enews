@@ -29,6 +29,25 @@ struct enews_g enews_g = {
         {NULL, NULL}
     }
 };
+typedef struct {
+    const char *host;
+    const char *uri;
+} enews_src_t;
+
+#define CURRENT_CONFIG_VERSION 0U
+typedef struct {
+   unsigned int version;
+   enews_src_t *sources;
+} enews_config_t;
+
+static struct {
+    Eet_Data_Descriptor *conf_desc;
+    Eet_Data_Descriptor *src_desc;
+    enews_config_t *cfg;
+} enews_main_g;
+#define _G enews_main_g
+
+/* Network {{{ */
 
 static Eina_Error
 on_client_return(void *data , int type , Azy_Content *content)
@@ -99,6 +118,7 @@ on_connection(void *data , int type , Azy_Client *cli)
     return ECORE_CALLBACK_RENEW;
 }
 
+/* }}} */
 /* Toolbar {{{ */
 
 static void
@@ -124,6 +144,137 @@ _toolbar_setup(void)
 
     item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
                                    _add_rss_cb, NULL);
+}
+
+/* }}} */
+/* Config {{{ */
+
+static void
+_config_init(void)
+{
+    Eet_Data_Descriptor_Class eddc;
+    char path[PATH_MAX];
+
+    snprintf(path, sizeof(path), "%s/enews", efreet_config_home_get());
+    if (!ecore_file_mkpath(path)) {
+        ERR("unable to create path '%s': %m", path);
+    }
+
+    EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET(&eddc, enews_config_t);
+    _G.conf_desc = eet_data_descriptor_stream_new(&eddc);
+
+    EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET(&eddc, enews_src_t);
+    _G.src_desc = eet_data_descriptor_stream_new(&eddc);
+
+#define CFG_ADD_BASIC(member, eet_type)\
+    EET_DATA_DESCRIPTOR_ADD_BASIC\
+    (_G.conf_desc, enews_config_t, #member, member, eet_type)
+
+    EET_DATA_DESCRIPTOR_ADD_LIST(_G.conf_desc, enews_config_t,
+                                 "sources", sources, _G.src_desc);
+    CFG_ADD_BASIC(version, EET_T_UINT);
+#undef CFG_ADD_BASIC
+
+#define SRC_ADD_BASIC(member, eet_type)\
+    EET_DATA_DESCRIPTOR_ADD_BASIC\
+    (_G.conf_desc, enews_src_t, #member, member, eet_type)
+
+    SRC_ADD_BASIC(host, EET_T_STRING);
+    SRC_ADD_BASIC(uri, EET_T_STRING);
+#undef SRC_ADD_BASIC
+}
+
+static void
+_config_shutdown(void)
+{
+    eet_data_descriptor_free(_G.src_desc);
+    eet_data_descriptor_free(_G.conf_desc);
+}
+
+static void
+_config_load(void)
+{
+    char path[PATH_MAX];
+    Eet_File *ef;
+
+    snprintf(path, sizeof(path), "%s/enews/config.eet",
+             efreet_config_home_get());
+    if (access(path, R_OK)) {
+        INFO("no configuration file found");
+        return;
+    }
+
+    ef = eet_open(path, EET_FILE_MODE_READ);
+    if (!ef) {
+        ERR("unable to open configuration file '%s': %m", path);
+        return;
+    }
+
+    _G.cfg = eet_data_read(ef, _G.conf_desc, "config");
+    if (!_G.cfg) {
+        ERR("unable to read configuration file '%s': %m", path);
+        goto end;
+    }
+
+    if (_G.cfg->version > CURRENT_CONFIG_VERSION) {
+        ERR("unable to read configuration file: wrong version");
+        goto end;
+    }
+
+end:
+    eet_close(ef);
+}
+
+static int
+_config_save(void)
+{
+    char path[PATH_MAX];
+    char tmp[PATH_MAX];
+    Eet_File *ef;
+    int len;
+    int i;
+
+    /* XXX: can't use a tmp file, we want it on the same partition */
+
+    len = snprintf(path, sizeof(path), "%s/enews/config.eet",
+                   efreet_config_home_get());
+    memcpy(tmp, path, len);
+    if (len == sizeof(path)) {
+        tmp[sizeof(tmp) - 1] = '\0';
+    } else {
+        tmp[len] = '\0';
+    }
+
+    i = 0;
+    do {
+        snprintf(tmp + len, sizeof(tmp) - len, ".%u", i);
+        i++;
+    } while (access(tmp, F_OK) == 0 || errno != ENOENT);
+
+    ef = eet_open(tmp, EET_FILE_MODE_WRITE);
+    if (!ef) {
+        ERR("unable to open '%s' for writing: %m", tmp);
+        return -1;
+    }
+
+    if (!eet_data_write(ef, _G.conf_desc, "config", _G.cfg, EINA_TRUE)) {
+        ERR("unable to write configuration file to '%s': %m", tmp);
+        eet_close(ef);
+        return -1;
+    }
+
+    eet_close(ef);
+
+    if (rename(tmp, path)) {
+        ERR("unable to rename '%s' to '%s': %m", tmp, path);
+        return -1;
+    }
+    if (unlink(tmp)) {
+        ERR("unable to remove file '%s': %m", tmp);
+        return -1;
+    }
+
+    return 0;
 }
 
 /* }}} */
@@ -171,6 +322,9 @@ main(int argc, char **argv)
 
     dashboard_initialize();
 
+    _config_init();
+    _config_load();
+
     for (int i = 0; enews_g.rss_ressources[i].host; i++) {
         cli = azy_client_new();
         DBG("add cli=%p", cli);
@@ -195,6 +349,9 @@ main(int argc, char **argv)
     evas_object_show(enews_g.win);
 
     elm_run();
+
+    _config_save();
+    _config_shutdown();
 
     if (enews_g.log_domain >= 0) {
         eina_log_domain_unregister(enews_g.log_domain);

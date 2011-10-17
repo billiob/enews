@@ -8,9 +8,11 @@
 
 #include "config.h"
 
-#define ERR(...) EINA_LOG_DOM_ERR(enews_g.log_domain, __VA_ARGS__)
-#define DBG(...) EINA_LOG_DOM_DBG(enews_g.log_domain, __VA_ARGS__)
-
+#define ERR(...)  EINA_LOG_DOM_ERR(enews_g.log_domain, __VA_ARGS__)
+#define DBG(...)  EINA_LOG_DOM_DBG(enews_g.log_domain, __VA_ARGS__)
+#define INFO(...) EINA_LOG_DOM_INFO(enews_g.log_domain, __VA_ARGS__)
+#define WARN(...) EINA_LOG_DOM_WARN(enews_g.log_domain, __VA_ARGS__)
+#define CRIT(...) EINA_LOG_DOM_CRIT(enews_g.log_domain, __VA_ARGS__)
 
 typedef struct _Rss_Item {
     const char *image;

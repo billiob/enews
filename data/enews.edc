@@ -4,14 +4,14 @@ collections {
         max: 0 300;
         styles {
             style { name: "title";
-                base: "font=Sans:style=Bold font_size=12 align=left color=#000 wrap=word";
+                base: "font=Sans:style=Bold font_size=12 align=left color=#000 wrap=word elipsis=1.0";
                 tag:  "br" "\n";
                 tag:  "ps" "ps";
                 tag:  "hilight" "+ font=Sans:style=Bold";
                 tag:  "tab" "\t";
             }
             style { name: "content";
-                base: "font=Sans font_size=10 align=left color=#000 wrap=word";
+                base: "font=Sans font_size=10 align=left color=#000 wrap=word elipsis=1.0";
                 tag:  "br" "\n";
                 tag:  "ps" "ps";
                 tag:  "hilight" "+ font=Sans:style=Bold";
@@ -58,7 +58,6 @@ collections {
             part { name: "title";
                 type: TEXTBLOCK;
                 mouse_events: 0;
-                //multiline: 1;
                 clip_to: "clip";
                 entry_mode: NONE;
                 description {
@@ -108,7 +107,6 @@ collections {
                         text: "Well, it looks like Intel is throwing in the smart TV towel. As originally reported by AnandTech, and now confirmed by the company itself, Chipzilla is closing down its Digital Home Group and folding the team and resources into its tablet division. Its CE processors, which are found in the Boxee Box and the Logitech Revue, will continue to be sold, but it sounds like the focus will shift away from consumer-facing products. Obviously, that leaves the door wide open for ARM to sweep in. We already know that Google TV will be making the move to ARM-based hardware soon and the Boxee Box started life on Tegra before making the move to an Atom CE4100 (not to mention the A4-sporting Apple TV), so this isn't entirely new ground for the big players. Still, we're a little shocked to see Intel abandon the market just as it seems to be picking up steam. Intel may be giving up on smart TVs, ceding market to ARM originally appeared on Engadget on Wed, 12 Oct 2011 13:42:00 EDT.  Please see our terms for use of feeds. Permalink&nbsp; &nbsp;|&nbsp; AnandTech, GigaOm &nbsp;|&nbsp;Email this&nbsp;|&nbsp;Comments";
                         style: "content";
                         min: 0 0;
-                        ellipsis: 0.0;
                         align: 0 0;
                     }
                 }

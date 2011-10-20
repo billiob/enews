@@ -146,8 +146,8 @@ _tb_add_rss_cb(void *data __UNUSED__,
         enews_g.current_widget_hide(enews_g.cb_data);
 
     bx = elm_box_add(enews_g.win);
-    elm_box_homogeneous_set(bx, EINA_FALSE);
-    elm_box_horizontal_set(bx, EINA_FALSE);
+    elm_box_homogeneous_set(bx, false);
+    elm_box_horizontal_set(bx, false);
     evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
     evas_object_show(bx);
@@ -205,7 +205,7 @@ _toolbar_setup(void)
     Elm_Toolbar_Item *item;
 
     enews_g.tb = elm_toolbar_add(enews_g.win);
-    elm_toolbar_homogeneous_set(enews_g.tb, EINA_FALSE);
+    elm_toolbar_homogeneous_set(enews_g.tb, false);
     elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
     evas_object_size_hint_weight_set(enews_g.tb, 0.0, 0.0);
     evas_object_size_hint_align_set(enews_g.tb, EVAS_HINT_FILL, 0.0);
@@ -329,7 +329,7 @@ _config_save(void)
         return -1;
     }
 
-    if (!eet_data_write(ef, _G.conf_desc, "config", _G.cfg, EINA_TRUE)) {
+    if (!eet_data_write(ef, _G.conf_desc, "config", _G.cfg, true)) {
         ERR("unable to write configuration file to '%s': %m", tmp);
         eet_close(ef);
         return -1;
@@ -372,7 +372,7 @@ main(int argc, char **argv)
 
     enews_g.win = elm_win_add(NULL, "Enews RSS Reader", ELM_WIN_BASIC);
     elm_win_title_set(enews_g.win, "Enews");
-    elm_win_autodel_set(enews_g.win, EINA_TRUE);
+    elm_win_autodel_set(enews_g.win, true);
     elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
     bg = elm_bg_add(enews_g.win);
@@ -381,8 +381,8 @@ main(int argc, char **argv)
     evas_object_show(bg);
 
     enews_g.bx = elm_box_add(enews_g.win);
-    elm_box_horizontal_set(enews_g.bx, EINA_FALSE);
-    elm_box_homogeneous_set(enews_g.bx, EINA_FALSE);
+    elm_box_horizontal_set(enews_g.bx, false);
+    elm_box_homogeneous_set(enews_g.bx, false);
     evas_object_size_hint_weight_set(enews_g.bx,
                                      EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_fill_set(enews_g.bx, EVAS_HINT_FILL,
@@ -401,7 +401,7 @@ main(int argc, char **argv)
         cli = azy_client_new();
         DBG("add cli=%p", cli);
         azy_client_host_set(cli,  enews_g.rss_ressources[i].host, 80);
-        azy_client_connect(cli, EINA_FALSE);
+        azy_client_connect(cli, false);
         azy_net_uri_set(azy_client_net_get(cli),
                         enews_g.rss_ressources[i].uri);
         azy_net_version_set(azy_client_net_get(cli), 0);

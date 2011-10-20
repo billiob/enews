@@ -27,11 +27,18 @@ typedef struct _Rss_Ressource {
     const char *uri;
 } Rss_Ressource;
 
+typedef void (*enews_hide_f)(void *data);
+
 struct enews_g {
     int log_domain;
     Evas_Object *win,
                 *bx,
-                *tb;
+                *tb,
+                *dashboard;
+
+    enews_hide_f current_widget_hide;
+    void *cb_data;
+
     Rss_Ressource rss_ressources[];
 };
 extern struct enews_g enews_g;
@@ -39,6 +46,7 @@ extern struct enews_g enews_g;
 /* Dashboard */
 void dashboard_initialize(void);
 void dashboard_item_add(Rss_Item *item);
+void dashboard_show(void);
 
 /* Utils */
 char *extract_text_from_html(const char *src);

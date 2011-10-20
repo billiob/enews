@@ -44,6 +44,8 @@ static struct {
     Eet_Data_Descriptor *conf_desc;
     Eet_Data_Descriptor *src_desc;
     enews_config_t *cfg;
+
+    Evas_Object *hv;
 } enews_main_g;
 #define _G enews_main_g
 
@@ -119,14 +121,63 @@ on_connection(void *data , int type , Azy_Client *cli)
 }
 
 /* }}} */
+/* Add RSS {{{ */
+
+static void
+_add_rss_widget_hide(Evas_Object *bx)
+{
+    evas_object_del(bx);
+}
+
+static void
+_tb_add_rss_cb(void *data __UNUSED__,
+               Evas_Object *obj __UNUSED__,
+               void *event_info __UNUSED__)
+{
+    Evas_Object *bx, *label, *bt, *entry;
+
+    if (enews_g.current_widget_hide)
+        enews_g.current_widget_hide(enews_g.cb_data);
+
+    bx = elm_box_add(enews_g.win);
+    elm_box_homogeneous_set(bx, EINA_FALSE);
+    elm_box_horizontal_set(bx, EINA_FALSE);
+    evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    evas_object_show(bx);
+
+    elm_box_pack_end(enews_g.bx, bx);
+
+    label = elm_label_add(enews_g.win);
+    elm_object_text_set(label, "Enter the URL of an RSS stream to add");
+    elm_box_pack_end(bx, label);
+    evas_object_show(label);
+
+    entry = elm_entry_add(enews_g.win);
+    elm_box_pack_end(bx, entry);
+    evas_object_show(entry);
+
+    bt = elm_bubble_add(enews_g.win);
+    elm_object_text_set(bt, "Add RSS");
+    elm_box_pack_end(bx, bt);
+    evas_object_show(bt);
+
+    enews_g.current_widget_hide = (enews_hide_f)_add_rss_widget_hide;
+    enews_g.cb_data = bx;
+}
+
+/* }}} */
 /* Toolbar {{{ */
 
 static void
-_add_rss_cb(void *data, Evas_Object *obj __UNUSED__,
-            void *event_info __UNUSED__)
+_tb_dashboard_cb(void *data __UNUSED__,
+                 Evas_Object *obj __UNUSED__,
+                 void *event_info __UNUSED__)
 {
-    /* TODO */
-    DBG("TODO");
+    if (enews_g.current_widget_hide)
+        enews_g.current_widget_hide(enews_g.cb_data);
+
+    dashboard_show();
 }
 
 static void
@@ -143,7 +194,9 @@ _toolbar_setup(void)
     evas_object_show(enews_g.tb);
 
     item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
-                                   _add_rss_cb, NULL);
+                                   _tb_add_rss_cb, NULL);
+    item = elm_toolbar_item_append(enews_g.tb, "home", "Dashboard",
+                                   _tb_dashboard_cb, NULL);
 }
 
 /* }}} */

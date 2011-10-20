@@ -155,7 +155,7 @@ _tb_add_rss_cb(void *data __UNUSED__,
     elm_box_pack_end(enews_g.bx, bx);
 
     label = elm_label_add(enews_g.win);
-    elm_object_text_set(label, "Enter the URL of an RSS stream to add");
+    elm_object_text_set(label, "Enter the URL of an RSS stream to add:");
     elm_box_pack_end(bx, label);
     evas_object_show(label);
 
@@ -164,10 +164,10 @@ _tb_add_rss_cb(void *data __UNUSED__,
     elm_entry_single_line_set(entry, true);
     evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_fill_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-    f = elm_entry_add(enews_g.win);
+    f = elm_frame_add(enews_g.win);
     elm_frame_content_set(f, entry);
-    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, 0.0);
-    evas_object_size_hint_fill_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    evas_object_size_hint_weight_set(f, EVAS_HINT_EXPAND, 0.0);
+    evas_object_size_hint_fill_set(f, EVAS_HINT_FILL, EVAS_HINT_FILL);
     evas_object_show(entry);
     elm_box_pack_end(bx, f);
     evas_object_show(f);

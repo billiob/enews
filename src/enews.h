@@ -54,7 +54,7 @@ extern struct enews_g enews_g;
 
 /* Dashboard */
 void dashboard_initialize(void);
-void dashboard_item_add(Rss_Item *item);
+void dashboard_item_add(const Rss_Item *item);
 void dashboard_show(void);
 
 /* Utils */

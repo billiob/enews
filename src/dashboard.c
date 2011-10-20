@@ -48,7 +48,7 @@ dashboard_initialize(void)
 }
 
 void
-dashboard_item_add(Rss_Item *item)
+dashboard_item_add(const Rss_Item *item)
 {
     Evas_Object *edj;
     Evas_Coord w, h;

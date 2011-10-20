@@ -9,7 +9,13 @@ static struct dashboard_g {
 static void
 _dashboard_hide(void *data __UNUSED__)
 {
+    if (enews_g.current_widget != DASHBOARD)
+        return;
     evas_object_hide(enews_g.dashboard);
+
+    enews_g.current_widget_hide = NULL;
+    enews_g.cb_data = NULL;
+    enews_g.current_widget = NONE;
 }
 
 void
@@ -70,10 +76,15 @@ dashboard_item_add(Rss_Item *item)
 void
 dashboard_show(void)
 {
+    if (enews_g.current_widget == DASHBOARD)
+        return;
+
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
 
     evas_object_show(enews_g.dashboard);
 
     enews_g.current_widget_hide = _dashboard_hide;
+    enews_g.cb_data = NULL;
+    enews_g.current_widget = DASHBOARD;
 }

@@ -27,6 +27,14 @@ typedef struct _Rss_Ressource {
     const char *uri;
 } Rss_Ressource;
 
+typedef enum enews_widget_t{
+    NONE,
+    DASHBOARD,
+    ADD_RSS,
+
+    ENEWS_SCREENS_COUNT
+} enews_widget_t;
+
 typedef void (*enews_hide_f)(void *data);
 
 struct enews_g {
@@ -36,6 +44,7 @@ struct enews_g {
                 *tb,
                 *dashboard;
 
+    enews_widget_t current_widget;
     enews_hide_f current_widget_hide;
     void *cb_data;
 

@@ -126,7 +126,13 @@ on_connection(void *data , int type , Azy_Client *cli)
 static void
 _add_rss_widget_hide(Evas_Object *bx)
 {
+    if (enews_g.current_widget != ADD_RSS)
+        return;
     evas_object_del(bx);
+
+    enews_g.current_widget_hide = NULL;
+    enews_g.cb_data = NULL;
+    enews_g.current_widget = NONE;
 }
 
 static void
@@ -164,6 +170,7 @@ _tb_add_rss_cb(void *data __UNUSED__,
 
     enews_g.current_widget_hide = (enews_hide_f)_add_rss_widget_hide;
     enews_g.cb_data = bx;
+    enews_g.current_widget = ADD_RSS;
 }
 
 /* }}} */
@@ -174,6 +181,9 @@ _tb_dashboard_cb(void *data __UNUSED__,
                  Evas_Object *obj __UNUSED__,
                  void *event_info __UNUSED__)
 {
+    if (enews_g.current_widget == DASHBOARD)
+        return;
+
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
 
@@ -193,10 +203,10 @@ _toolbar_setup(void)
     elm_box_pack_start(enews_g.bx, enews_g.tb);
     evas_object_show(enews_g.tb);
 
-    item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
-                                   _tb_add_rss_cb, NULL);
     item = elm_toolbar_item_append(enews_g.tb, "home", "Dashboard",
                                    _tb_dashboard_cb, NULL);
+    item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
+                                   _tb_add_rss_cb, NULL);
 }
 
 /* }}} */

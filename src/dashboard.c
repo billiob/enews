@@ -45,6 +45,8 @@ dashboard_initialize(void)
     elm_box_pack_end(enews_g.bx, enews_g.dashboard);
 
     enews_g.current_widget_hide = _dashboard_hide;
+    enews_g.cb_data = NULL;
+    enews_g.current_widget = DASHBOARD;
 }
 
 void

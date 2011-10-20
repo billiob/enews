@@ -12,6 +12,7 @@ _dashboard_hide(void *data __UNUSED__)
     if (enews_g.current_widget != DASHBOARD)
         return;
     evas_object_hide(enews_g.dashboard);
+    elm_box_unpack(enews_g.bx, enews_g.dashboard);
 
     enews_g.current_widget_hide = NULL;
     enews_g.cb_data = NULL;
@@ -86,6 +87,7 @@ dashboard_show(void)
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
 
+    elm_box_pack_end(enews_g.bx, enews_g.dashboard);
     evas_object_show(enews_g.dashboard);
 
     enews_g.current_widget_hide = _dashboard_hide;

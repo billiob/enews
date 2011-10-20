@@ -29,7 +29,9 @@ dashboard_initialize(void)
     evas_object_size_hint_weight_set(enews_g.dashboard,
                                      EVAS_HINT_EXPAND,
                                      EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(enews_g.dashboard, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    evas_object_size_hint_fill_set(enews_g.dashboard,
+                                   EVAS_HINT_FILL,
+                                   EVAS_HINT_FILL);
 
     _G.bx = elm_box_add(enews_g.win);
     elm_box_homogeneous_set(_G.bx, EINA_FALSE);

@@ -95,7 +95,7 @@ _config_load(void)
              efreet_config_home_get());
     if (access(path, R_OK)) {
         INFO("no configuration file found");
-        _G.cfg = calloc(sizeof(enews_config_t), 1);
+        _G.cfg = calloc(1, sizeof(enews_config_t));
         return;
     }
 

@@ -295,12 +295,12 @@ _bt_add_rss_cb(Evas_Object *entry,
     addr = elm_object_text_get(entry);
     if (!addr)
         return;
-    if (strncmp(addr, "http://", strlen("http://")) > 0) {
+    if (!strncmp(addr, "http://", strlen("http://"))) {
         addr += strlen("http://");
     }
 
     uri = strchr(addr, '/');
-    if (!uri || !*(uri+1)) {
+    if (!uri) {
         ERR("invalid rss address '%s'", addr);
         return;
     }
@@ -310,10 +310,11 @@ _bt_add_rss_cb(Evas_Object *entry,
     src->host = malloc((len + 1) * sizeof(char));
     memcpy((char*)src->host, addr, len);
     ((char*)src->host)[len] = '\0';
-    src->uri = strdup(++uri);
-
+    src->uri = strdup(uri);
 
     EINA_LIST_APPEND(_G.cfg->sources, src);
+
+    _enews_src_connect(src);
 
     _config_save();
 

@@ -29,7 +29,7 @@ typedef struct _Rss_Ressource {
     const char *uri;
 } Rss_Ressource;
 
-typedef enum enews_widget_t{
+typedef enum enews_widget_t {
     NONE,
     DASHBOARD,
     ADD_RSS,

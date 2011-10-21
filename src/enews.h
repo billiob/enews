@@ -24,11 +24,6 @@ typedef struct _Rss_Item {
     int pending_img_dl;
 } Rss_Item;
 
-typedef struct _Rss_Ressource {
-    const char *host;
-    const char *uri;
-} Rss_Ressource;
-
 typedef enum enews_widget_t {
     NONE,
     DASHBOARD,
@@ -49,8 +44,6 @@ struct enews_g {
     enews_widget_t current_widget;
     enews_hide_f current_widget_hide;
     void *cb_data;
-
-    Rss_Ressource rss_ressources[];
 };
 extern struct enews_g enews_g;
 

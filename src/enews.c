@@ -19,15 +19,6 @@
 
 struct enews_g enews_g = {
     .log_domain = -1,
-    .rss_ressources = {
-        //{"http://www.linuxdevices.com", "/backend/headlines.rss"},
-        {"http://www.engadget.com", "/rss.xml"},
-        //{"http://feeds.arstechnica.com", "/arstechnica/index/"},
-        //{"http://feeds2.feedburner.com", "/LeJournalduGeek"},
-        //{"http://www.lemonde.fr", "/rss/une.xml"},
-        //{"http://rss.feedsportal.com", "/c/499/f/413823/index.rss"},
-        {NULL, NULL}
-    }
 };
 typedef struct {
     const char *host;

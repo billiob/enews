@@ -413,7 +413,6 @@ int
 main(int argc, char **argv)
 {
     Evas_Object *bg;
-    Azy_Client *cli = NULL;
 
     eina_init();
     ecore_init();
@@ -482,8 +481,12 @@ main(int argc, char **argv)
         eina_log_domain_unregister(enews_g.log_domain);
     }
 
-    /* TODO: free all azy_clients */
-    azy_client_free(cli);
+    for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
+        enews_src_t *src = l->data;
+
+        if (src->cli)
+            azy_client_free(src->cli);
+    }
 
     elm_shutdown();
     azy_shutdown();

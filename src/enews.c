@@ -73,14 +73,14 @@ _config_init(void)
     EET_DATA_DESCRIPTOR_ADD_BASIC\
     (_G.conf_desc, enews_config_t, #member, member, eet_type)
 
+    CFG_ADD_BASIC(version, EET_T_UINT);
     EET_DATA_DESCRIPTOR_ADD_LIST(_G.conf_desc, enews_config_t,
                                  "sources", sources, _G.src_desc);
-    CFG_ADD_BASIC(version, EET_T_UINT);
 #undef CFG_ADD_BASIC
 
 #define SRC_ADD_BASIC(member, eet_type)\
     EET_DATA_DESCRIPTOR_ADD_BASIC\
-    (_G.conf_desc, enews_src_t, #member, member, eet_type)
+    (_G.src_desc, enews_src_t, #member, member, eet_type)
 
     SRC_ADD_BASIC(host, EET_T_STRING);
     SRC_ADD_BASIC(uri, EET_T_STRING);

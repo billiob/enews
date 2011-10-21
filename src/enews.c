@@ -198,9 +198,9 @@ on_client_return(void *data , int type , Azy_Content *content)
     DBG("title='%s'", azy_rss_title_get(rss));
 
     EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
-        Rss_Item *rss_item;
+        rss_item_t *rss_item;
 
-        rss_item = calloc(1, sizeof(Rss_Item));
+        rss_item = calloc(1, sizeof(rss_item_t));
 
         rss_item->description = extract_text_from_html(azy_rss_item_desc_get(it));
         rss_item->title = azy_rss_item_title_get(it);

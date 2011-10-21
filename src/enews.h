@@ -16,13 +16,13 @@
 #define WARN(...) EINA_LOG_DOM_WARN(enews_g.log_domain, __VA_ARGS__)
 #define CRIT(...) EINA_LOG_DOM_CRIT(enews_g.log_domain, __VA_ARGS__)
 
-typedef struct _Rss_Item {
+typedef struct rss_item_t {
     const char *image;
     const char *title;
     const char *description;
 
     int pending_img_dl;
-} Rss_Item;
+} rss_item_t;
 
 typedef enum enews_widget_t {
     NONE,
@@ -49,7 +49,7 @@ extern struct enews_g enews_g;
 
 /* Dashboard */
 void dashboard_initialize(void);
-void dashboard_item_add(const Rss_Item *item);
+void dashboard_item_add(const rss_item_t *item);
 void dashboard_show(void);
 
 /* Utils */

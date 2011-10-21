@@ -6,6 +6,8 @@
 
 #include <stdbool.h>
 
+#include <assert.h>
+
 #include "config.h"
 
 #define ERR(...)  EINA_LOG_DOM_ERR(enews_g.log_domain, __VA_ARGS__)
@@ -59,4 +61,12 @@ void dashboard_show(void);
 
 /* Utils */
 char *extract_text_from_html(const char *src);
+
+#define EINA_LIST_IS_IN(_list, _el) \
+    (eina_list_data_find(_list, _el) == _el)
+#define EINA_LIST_APPEND(_list, _el) \
+    _list = eina_list_append(_list, _el)
+#define EINA_LIST_REMOVE(_list, _el) \
+    _list = eina_list_remove(_list, _el)
+
 #endif

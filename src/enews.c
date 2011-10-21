@@ -32,12 +32,13 @@ struct enews_g enews_g = {
 typedef struct {
     const char *host;
     const char *uri;
+    Azy_Client *cli;
 } enews_src_t;
 
 #define CURRENT_CONFIG_VERSION 0U
 typedef struct {
    unsigned int version;
-   enews_src_t *sources;
+   Eina_List *sources;
 } enews_config_t;
 
 static struct {
@@ -49,6 +50,134 @@ static struct {
 } enews_main_g;
 #define _G enews_main_g
 
+/* Config {{{ */
+
+static void
+_config_init(void)
+{
+    Eet_Data_Descriptor_Class eddc;
+    char path[PATH_MAX];
+
+    snprintf(path, sizeof(path), "%s/enews", efreet_config_home_get());
+    if (!ecore_file_mkpath(path)) {
+        ERR("unable to create path '%s': %m", path);
+    }
+
+    EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET(&eddc, enews_config_t);
+    _G.conf_desc = eet_data_descriptor_stream_new(&eddc);
+
+    EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET(&eddc, enews_src_t);
+    _G.src_desc = eet_data_descriptor_stream_new(&eddc);
+
+#define CFG_ADD_BASIC(member, eet_type)\
+    EET_DATA_DESCRIPTOR_ADD_BASIC\
+    (_G.conf_desc, enews_config_t, #member, member, eet_type)
+
+    EET_DATA_DESCRIPTOR_ADD_LIST(_G.conf_desc, enews_config_t,
+                                 "sources", sources, _G.src_desc);
+    CFG_ADD_BASIC(version, EET_T_UINT);
+#undef CFG_ADD_BASIC
+
+#define SRC_ADD_BASIC(member, eet_type)\
+    EET_DATA_DESCRIPTOR_ADD_BASIC\
+    (_G.conf_desc, enews_src_t, #member, member, eet_type)
+
+    SRC_ADD_BASIC(host, EET_T_STRING);
+    SRC_ADD_BASIC(uri, EET_T_STRING);
+#undef SRC_ADD_BASIC
+}
+
+static void
+_config_shutdown(void)
+{
+    eet_data_descriptor_free(_G.src_desc);
+    eet_data_descriptor_free(_G.conf_desc);
+}
+
+static void
+_config_load(void)
+{
+    char path[PATH_MAX];
+    Eet_File *ef;
+
+    snprintf(path, sizeof(path), "%s/enews/config.eet",
+             efreet_config_home_get());
+    if (access(path, R_OK)) {
+        INFO("no configuration file found");
+        _G.cfg = calloc(sizeof(enews_config_t), 1);
+        return;
+    }
+
+    ef = eet_open(path, EET_FILE_MODE_READ);
+    if (!ef) {
+        ERR("unable to open configuration file '%s': %m", path);
+        return;
+    }
+
+    _G.cfg = eet_data_read(ef, _G.conf_desc, "config");
+    if (!_G.cfg) {
+        ERR("unable to read configuration file '%s': %m", path);
+        goto end;
+    }
+
+    if (_G.cfg->version > CURRENT_CONFIG_VERSION) {
+        ERR("unable to read configuration file: wrong version");
+        goto end;
+    }
+
+end:
+    eet_close(ef);
+}
+
+static int
+_config_save(void)
+{
+    char path[PATH_MAX];
+    char tmp[PATH_MAX];
+    Eet_File *ef;
+    int len;
+    int i;
+
+    /* XXX: can't use a tmp file, we want it on the same partition */
+
+    len = snprintf(path, sizeof(path), "%s/enews/config.eet",
+                   efreet_config_home_get());
+    memcpy(tmp, path, len);
+    if (len == sizeof(path)) {
+        tmp[sizeof(tmp) - 1] = '\0';
+    } else {
+        tmp[len] = '\0';
+    }
+
+    i = 0;
+    do {
+        snprintf(tmp + len, sizeof(tmp) - len, ".%u", i);
+        i++;
+    } while (access(tmp, F_OK) == 0 || errno != ENOENT);
+
+    ef = eet_open(tmp, EET_FILE_MODE_WRITE);
+    if (!ef) {
+        ERR("unable to open '%s' for writing: %m", tmp);
+        return -1;
+    }
+
+    if (!eet_data_write(ef, _G.conf_desc, "config", _G.cfg, true)) {
+        ERR("unable to write configuration file to '%s': %m", tmp);
+        eet_close(ef);
+        return -1;
+    }
+
+    eet_close(ef);
+
+    if (rename(tmp, path)) {
+        ERR("unable to rename '%s' to '%s': %m", tmp, path);
+        return -1;
+    }
+
+    return 0;
+}
+
+/* }}} */
 /* Network {{{ */
 
 static Eina_Error
@@ -120,6 +249,23 @@ on_connection(void *data , int type , Azy_Client *cli)
     return ECORE_CALLBACK_RENEW;
 }
 
+static void
+_enews_src_connect(enews_src_t *src)
+{
+    Azy_Net *net;
+    assert(src);
+    assert(!src->cli);
+
+    DBG("src->host='%s', src->uri='%s'", src->host, src->uri);
+    src->cli = azy_client_new();
+    azy_client_host_set(src->cli, src->host, 80);
+    azy_client_connect(src->cli, false);
+    net = azy_client_net_get(src->cli);
+    azy_net_uri_set(net, src->uri);
+    azy_net_version_set(net, 0);
+}
+
+
 /* }}} */
 /* Add RSS {{{ */
 
@@ -133,6 +279,45 @@ _add_rss_widget_hide(Evas_Object *bx)
     enews_g.current_widget_hide = NULL;
     enews_g.cb_data = NULL;
     enews_g.current_widget = NONE;
+}
+
+static void
+_bt_add_rss_cb(Evas_Object *entry,
+               Evas_Object *obj __UNUSED__,
+               void *event_info __UNUSED__)
+{
+    const char *addr;
+    char *uri;
+    enews_src_t *src;
+    int len;
+    /* How do i handle failures? hover-popup? */
+
+    addr = elm_object_text_get(entry);
+    if (!addr)
+        return;
+    if (strncmp(addr, "http://", strlen("http://")) > 0) {
+        addr += strlen("http://");
+    }
+
+    uri = strchr(addr, '/');
+    if (!uri || !*(uri+1)) {
+        ERR("invalid rss address '%s'", addr);
+        return;
+    }
+
+    src = calloc(1, sizeof(enews_src_t));
+    len = uri - addr;
+    src->host = malloc((len + 1) * sizeof(char));
+    memcpy((char*)src->host, addr, len);
+    ((char*)src->host)[len] = '\0';
+    src->uri = strdup(++uri);
+
+
+    EINA_LIST_APPEND(_G.cfg->sources, src);
+
+    _config_save();
+
+    dashboard_show();
 }
 
 static void
@@ -175,6 +360,8 @@ _tb_add_rss_cb(void *data __UNUSED__,
     bt = elm_button_add(enews_g.win);
     elm_object_text_set(bt, "Add RSS");
     elm_box_pack_end(bx, bt);
+    evas_object_smart_callback_add(bt, "clicked",
+                                   (Evas_Smart_Cb)_bt_add_rss_cb, entry);
     evas_object_show(bt);
 
     enews_g.current_widget_hide = (enews_hide_f)_add_rss_widget_hide;
@@ -216,137 +403,6 @@ _toolbar_setup(void)
                                    _tb_dashboard_cb, NULL);
     item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
                                    _tb_add_rss_cb, NULL);
-}
-
-/* }}} */
-/* Config {{{ */
-
-static void
-_config_init(void)
-{
-    Eet_Data_Descriptor_Class eddc;
-    char path[PATH_MAX];
-
-    snprintf(path, sizeof(path), "%s/enews", efreet_config_home_get());
-    if (!ecore_file_mkpath(path)) {
-        ERR("unable to create path '%s': %m", path);
-    }
-
-    EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET(&eddc, enews_config_t);
-    _G.conf_desc = eet_data_descriptor_stream_new(&eddc);
-
-    EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET(&eddc, enews_src_t);
-    _G.src_desc = eet_data_descriptor_stream_new(&eddc);
-
-#define CFG_ADD_BASIC(member, eet_type)\
-    EET_DATA_DESCRIPTOR_ADD_BASIC\
-    (_G.conf_desc, enews_config_t, #member, member, eet_type)
-
-    EET_DATA_DESCRIPTOR_ADD_LIST(_G.conf_desc, enews_config_t,
-                                 "sources", sources, _G.src_desc);
-    CFG_ADD_BASIC(version, EET_T_UINT);
-#undef CFG_ADD_BASIC
-
-#define SRC_ADD_BASIC(member, eet_type)\
-    EET_DATA_DESCRIPTOR_ADD_BASIC\
-    (_G.conf_desc, enews_src_t, #member, member, eet_type)
-
-    SRC_ADD_BASIC(host, EET_T_STRING);
-    SRC_ADD_BASIC(uri, EET_T_STRING);
-#undef SRC_ADD_BASIC
-}
-
-static void
-_config_shutdown(void)
-{
-    eet_data_descriptor_free(_G.src_desc);
-    eet_data_descriptor_free(_G.conf_desc);
-}
-
-static void
-_config_load(void)
-{
-    char path[PATH_MAX];
-    Eet_File *ef;
-
-    snprintf(path, sizeof(path), "%s/enews/config.eet",
-             efreet_config_home_get());
-    if (access(path, R_OK)) {
-        INFO("no configuration file found");
-        return;
-    }
-
-    ef = eet_open(path, EET_FILE_MODE_READ);
-    if (!ef) {
-        ERR("unable to open configuration file '%s': %m", path);
-        return;
-    }
-
-    _G.cfg = eet_data_read(ef, _G.conf_desc, "config");
-    if (!_G.cfg) {
-        ERR("unable to read configuration file '%s': %m", path);
-        goto end;
-    }
-
-    if (_G.cfg->version > CURRENT_CONFIG_VERSION) {
-        ERR("unable to read configuration file: wrong version");
-        goto end;
-    }
-
-end:
-    eet_close(ef);
-}
-
-static int
-_config_save(void)
-{
-    char path[PATH_MAX];
-    char tmp[PATH_MAX];
-    Eet_File *ef;
-    int len;
-    int i;
-
-    /* XXX: can't use a tmp file, we want it on the same partition */
-
-    len = snprintf(path, sizeof(path), "%s/enews/config.eet",
-                   efreet_config_home_get());
-    memcpy(tmp, path, len);
-    if (len == sizeof(path)) {
-        tmp[sizeof(tmp) - 1] = '\0';
-    } else {
-        tmp[len] = '\0';
-    }
-
-    i = 0;
-    do {
-        snprintf(tmp + len, sizeof(tmp) - len, ".%u", i);
-        i++;
-    } while (access(tmp, F_OK) == 0 || errno != ENOENT);
-
-    ef = eet_open(tmp, EET_FILE_MODE_WRITE);
-    if (!ef) {
-        ERR("unable to open '%s' for writing: %m", tmp);
-        return -1;
-    }
-
-    if (!eet_data_write(ef, _G.conf_desc, "config", _G.cfg, true)) {
-        ERR("unable to write configuration file to '%s': %m", tmp);
-        eet_close(ef);
-        return -1;
-    }
-
-    eet_close(ef);
-
-    if (rename(tmp, path)) {
-        ERR("unable to rename '%s' to '%s': %m", tmp, path);
-        return -1;
-    }
-    if (unlink(tmp)) {
-        ERR("unable to remove file '%s': %m", tmp);
-        return -1;
-    }
-
-    return 0;
 }
 
 /* }}} */
@@ -397,14 +453,10 @@ main(int argc, char **argv)
     _config_init();
     _config_load();
 
-    for (int i = 0; enews_g.rss_ressources[i].host; i++) {
-        cli = azy_client_new();
-        DBG("add cli=%p", cli);
-        azy_client_host_set(cli,  enews_g.rss_ressources[i].host, 80);
-        azy_client_connect(cli, false);
-        azy_net_uri_set(azy_client_net_get(cli),
-                        enews_g.rss_ressources[i].uri);
-        azy_net_version_set(azy_client_net_get(cli), 0);
+    for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
+        enews_src_t *src = l->data;
+
+        _enews_src_connect(src);
     }
 
     ecore_event_handler_add(AZY_CLIENT_CONNECTED,

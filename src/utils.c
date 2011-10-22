@@ -1,8 +1,8 @@
 
 #include "enews.h"
 
-
 static const char *
+__attribute__((pure))
 _skip_spaces(const char *str)
 {
     for(; *str && isspace(*str); str++) {}
@@ -11,6 +11,7 @@ _skip_spaces(const char *str)
 }
 
 static const char *
+__attribute__((pure))
 _skip_till_end_html_mark(const char *str)
 {
     while (*str && *str != '>') {
@@ -33,6 +34,7 @@ _skip_till_end_html_mark(const char *str)
 }
 
 static const char *
+__attribute__((pure))
 _skip_till_end_comment(const char *str)
 {
     char *found = strstr(str, "-->");

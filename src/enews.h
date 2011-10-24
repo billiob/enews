@@ -28,6 +28,7 @@ typedef enum enews_widget_t {
     NONE,
     DASHBOARD,
     ADD_RSS,
+    STREAMS_LIST,
 
     ENEWS_SCREENS_COUNT
 } enews_widget_t;

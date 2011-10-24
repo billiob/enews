@@ -373,6 +373,39 @@ _tb_add_rss_cb(void *data __UNUSED__,
 }
 
 /* }}} */
+/* Streams List {{{ */
+
+static void
+_streams_list_widget_hide(Evas_Object *gl)
+{
+    if (enews_g.current_widget != STREAMS_LIST)
+        return;
+    evas_object_del(gl);
+
+    enews_g.current_widget_hide = NULL;
+    enews_g.cb_data = NULL;
+    enews_g.current_widget = NONE;
+}
+
+
+static void
+_tb_streams_list_cb(void *data __UNUSED__,
+                    Evas_Object *obj __UNUSED__,
+                    void *event_info __UNUSED__)
+{
+    Evas_Object *gl = NULL;
+
+    if (enews_g.current_widget_hide)
+        enews_g.current_widget_hide(enews_g.cb_data);
+
+    /* TODO: genlist */
+
+    enews_g.current_widget_hide = (enews_hide_f)_streams_list_widget_hide;
+    enews_g.cb_data = gl;
+    enews_g.current_widget = STREAMS_LIST;
+}
+
+/* }}} */
 /* Toolbar {{{ */
 
 static void
@@ -406,6 +439,8 @@ _toolbar_setup(void)
                                    _tb_dashboard_cb, NULL);
     item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
                                    _tb_add_rss_cb, NULL);
+    item = elm_toolbar_item_append(enews_g.tb, "apps", "Streams",
+                                   _tb_streams_list_cb, NULL);
 }
 
 /* }}} */

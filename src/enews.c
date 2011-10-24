@@ -296,8 +296,19 @@ _bt_add_rss_cb(Evas_Object *entry,
         return;
     }
 
-    src = calloc(1, sizeof(enews_src_t));
     len = uri - addr;
+
+    /* check not to add twice */
+    for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
+        src = l->data;
+
+        if (!strncmp(src->host, addr, len)
+        &&  !strncmp(src->uri, uri, strlen(uri))) {
+            return;
+        }
+    }
+
+    src = calloc(1, sizeof(enews_src_t));
     src->host = malloc((len + 1) * sizeof(char));
     memcpy((char*)src->host, addr, len);
     ((char*)src->host)[len] = '\0';

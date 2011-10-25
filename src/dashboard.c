@@ -3,8 +3,7 @@
 
 static struct dashboard_g {
     Evas_Object *bx;
-} dashboard_g;
-#define _G dashboard_g
+} _G;
 
 static void
 _dashboard_hide(void *data __UNUSED__)

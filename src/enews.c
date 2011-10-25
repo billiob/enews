@@ -38,8 +38,7 @@ static struct {
     enews_config_t *cfg;
 
     Evas_Object *hv;
-} enews_main_g;
-#define _G enews_main_g
+} _G;
 
 /* Config {{{ */
 

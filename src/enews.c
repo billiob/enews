@@ -23,6 +23,7 @@ struct enews_g enews_g = {
 typedef struct {
     const char *host;
     const char *uri;
+    const char *title;
     Azy_Client *cli;
 } enews_src_t;
 
@@ -72,8 +73,9 @@ _config_init(void)
     EET_DATA_DESCRIPTOR_ADD_BASIC\
     (_G.src_desc, enews_src_t, #member, member, eet_type)
 
-    SRC_ADD_BASIC(host, EET_T_STRING);
-    SRC_ADD_BASIC(uri, EET_T_STRING);
+    SRC_ADD_BASIC(host,  EET_T_STRING);
+    SRC_ADD_BASIC(uri,   EET_T_STRING);
+    SRC_ADD_BASIC(title, EET_T_STRING);
 #undef SRC_ADD_BASIC
 }
 
@@ -374,33 +376,87 @@ _tb_add_rss_cb(void *data __UNUSED__,
 /* }}} */
 /* Streams List {{{ */
 
+static struct {
+    Evas_Object *li;
+    Evas_Object *idx;
+} _streams_list_widgets;
+
 static void
-_streams_list_widget_hide(Evas_Object *gl)
+_streams_list_widget_hide(void *_ __UNUSED__)
 {
     if (enews_g.current_widget != STREAMS_LIST)
         return;
-    evas_object_del(gl);
+
+    if (_streams_list_widgets.li) {
+        evas_object_del(_streams_list_widgets.li);
+        _streams_list_widgets.li = NULL;
+    }
+    if (_streams_list_widgets.idx) {
+        evas_object_del(_streams_list_widgets.idx);
+        _streams_list_widgets.idx = NULL;
+    }
 
     enews_g.current_widget_hide = NULL;
     enews_g.cb_data = NULL;
     enews_g.current_widget = NONE;
 }
 
+static void
+_index_changed(void *data __UNUSED__,
+               Evas_Object *obj __UNUSED__,
+               Elm_List_Item *item)
+{
+    elm_list_item_show(item);
+}
 
 static void
 _tb_streams_list_cb(void *data __UNUSED__,
                     Evas_Object *obj __UNUSED__,
                     void *event_info __UNUSED__)
 {
-    Evas_Object *gl = NULL;
+    Evas_Object *li,
+                *idx;
 
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
 
-    /* TODO: genlist */
+    li = elm_list_add(enews_g.win);
+    elm_list_always_select_mode_set(li, 1);
+    evas_object_size_hint_weight_set(li, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_size_hint_fill_set(li, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    elm_box_pack_end(enews_g.bx, li);
+    evas_object_show(li);
+
+    idx = elm_index_add(enews_g.win);
+    evas_object_smart_callback_add(idx, "delay,changed",
+                                   (Evas_Smart_Cb)_index_changed, NULL);
+    evas_object_size_hint_weight_set(idx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    elm_win_resize_object_add(enews_g.win, idx);
+    evas_object_show(idx);
+
+    for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
+        enews_src_t *src = l->data;
+        Elm_List_Item *it;
+        char letter[2] = {'\0', '\0'};
+        const char *label = src->title;
+
+        if (!src->title)
+            label = src->host;
+        if (!label)
+            continue;
+
+        it = elm_list_item_append(li, label, NULL, NULL, NULL, NULL);
+        letter[0] = label[0];
+        elm_index_item_append(idx, letter, it);
+     }
+    elm_index_item_go(idx, 0);
+    elm_list_go(li);
+
+    _streams_list_widgets.li = li;
+    _streams_list_widgets.idx = idx;
 
     enews_g.current_widget_hide = (enews_hide_f)_streams_list_widget_hide;
-    enews_g.cb_data = gl;
+    enews_g.cb_data = NULL;
     enews_g.current_widget = STREAMS_LIST;
 }
 

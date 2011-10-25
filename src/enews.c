@@ -173,19 +173,22 @@ _config_save(void)
 /* Network {{{ */
 
 static Eina_Error
-on_client_return(void *data , int type , Azy_Content *content)
+on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
 {
     Azy_Rss *rss;
     Azy_Rss_Item *it;
     Eina_List *l;
     int i = 0;
+    enews_src_t *src;
 
     if (azy_content_error_is_set(content)) {
         ERR("Error encountered: %s", azy_content_error_message_get(content));
         return azy_content_error_code_get(content);
     }
 
-    DBG("type=%d", type);
+    DBG("cli=%p", cli);
+    src = azy_client_data_get(cli);
+
     DBG("content='%s'", azy_content_dump_string(content, 2));
 
     rss = azy_content_return_get(content);
@@ -197,6 +200,15 @@ on_client_return(void *data , int type , Azy_Content *content)
     DBG("rss=%p", rss);
 
     DBG("title='%s'", azy_rss_title_get(rss));
+
+    if (!src->title) {
+        const char *title = azy_rss_title_get(rss);
+
+        if (title && *title) {
+            src->title = strdup(title);
+            _config_save();
+        }
+    }
 
     EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
         rss_item_t *rss_item;
@@ -233,7 +245,8 @@ on_connection(void *data , int type , Azy_Client *cli)
     if (!azy_client_current(cli)) {
         id = azy_client_blank(cli, AZY_NET_TYPE_GET, NULL, NULL, NULL);
         EINA_SAFETY_ON_TRUE_RETURN_VAL(!id, ECORE_CALLBACK_CANCEL);
-        //azy_client_callback_free_set(cli, id, (Ecore_Cb)azy_rss_free);
+
+        azy_client_callback_set(cli, id, on_client_return);
     } else {
         ERR("not current cli?!");
     }
@@ -255,6 +268,8 @@ _enews_src_connect(enews_src_t *src)
     net = azy_client_net_get(src->cli);
     azy_net_uri_set(net, src->uri);
     azy_net_version_set(net, 0);
+
+    azy_client_data_set(src->cli, src);
 }
 
 
@@ -553,9 +568,6 @@ main(int argc, char **argv)
 
     ecore_event_handler_add(AZY_CLIENT_CONNECTED,
                             (Ecore_Event_Handler_Cb)on_connection,
-                            NULL);
-    ecore_event_handler_add(AZY_CLIENT_RETURN,
-                            (Ecore_Event_Handler_Cb)on_client_return,
                             NULL);
     ecore_event_handler_add(AZY_CLIENT_DISCONNECTED,
                             (Ecore_Event_Handler_Cb)on_disconnection,

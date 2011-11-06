@@ -36,7 +36,7 @@ dashboard_initialize(void)
     _G.bx = elm_box_add(enews_g.win);
     elm_box_homogeneous_set(_G.bx, false);
     elm_box_horizontal_set(_G.bx, false);
-    elm_scroller_content_set(enews_g.dashboard, _G.bx);
+    elm_object_content_set(enews_g.dashboard, _G.bx);
     evas_object_show(_G.bx);
 
     evas_object_size_hint_weight_set(_G.bx,

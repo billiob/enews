@@ -4,14 +4,14 @@ collections {
         max: 0 300;
         styles {
             style { name: "title";
-                base: "font=serif:style=Bold font_size=12 align=left color=#000 wrap=word";
+                base: "font=serif:style=Bold font_size=14 align=left color=#000 wrap=word";
                 tag:  "br" "\n";
                 tag:  "ps" "ps";
                 tag:  "hilight" "+ font=Sans:style=Bold";
                 tag:  "tab" "\t";
             }
             style { name: "content";
-                base: "font=serif font_size=10 align=left color=#000 wrap=word ellipsis=1.0";
+                base: "font=serif font_size=12 align=left color=#000 wrap=word ellipsis=1.0";
                 tag:  "br" "\n";
                 tag:  "ps" "ps";
                 tag:  "hilight" "+ font=Sans:style=Bold";

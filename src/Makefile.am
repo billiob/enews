@@ -2,8 +2,9 @@ MAINTAINERCLEANFILES = Makefile.in
 
 bin_PROGRAMS = enews
 
-enews_SOURCES = \
-	enews.c \
+enews_SOURCES =     \
+	enews.c     \
+	core.c      \
 	dashboard.c \
 	utils.c
 

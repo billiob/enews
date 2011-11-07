@@ -19,10 +19,27 @@
 typedef struct rss_item_t {
     const char *image;
     const char *title;
-    const char *description;
+    char *description;
+
+    Azy_Rss_Item *item;
 
     int pending_img_dl;
 } rss_item_t;
+void rss_item_free(rss_item_t *p);
+
+typedef struct {
+    const char *host;
+    const char *uri;
+    const char *title;
+    Azy_Client *cli;
+    Eina_Hash  *items; // rss_item_t
+} enews_src_t;
+
+enews_src_t *enews_src_init_from_conf(enews_src_t *src);
+enews_src_t *enews_src_init(enews_src_t *src);
+enews_src_t *enews_src_new(void);
+enews_src_t *enews_src_wipe(enews_src_t *src);
+void enews_src_del(enews_src_t **p);
 
 typedef enum enews_widget_t {
     NONE,

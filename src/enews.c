@@ -20,17 +20,11 @@
 struct enews_g enews_g = {
     .log_domain = -1,
 };
-typedef struct {
-    const char *host;
-    const char *uri;
-    const char *title;
-    Azy_Client *cli;
-} enews_src_t;
 
 #define CURRENT_CONFIG_VERSION 0U
 typedef struct {
    unsigned int version;
-   Eina_List *sources;
+   Eina_List *sources; // enews_src_t
 } enews_config_t;
 
 static struct {
@@ -117,6 +111,10 @@ _config_load(void)
         goto end;
     }
 
+    for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
+        enews_src_init_from_conf(l->data);
+    }
+
 end:
     eet_close(ef);
 }
@@ -172,13 +170,30 @@ _config_save(void)
 /* }}} */
 /* Network {{{ */
 
+static const char *
+azy_rss_item_key_get(Azy_Rss_Item *item)
+{
+    const char *key;
+
+    assert(item);
+
+    key = azy_rss_item_guid_get(item);
+    if (key)
+        return key;
+
+    key = azy_rss_item_link_get(item);
+    if (key)
+        return key;
+
+    return azy_rss_item_date_get(item);
+}
+
 static Eina_Error
 on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
 {
     Azy_Rss *rss;
-    Azy_Rss_Item *it;
+    Azy_Rss_Item *item;
     Eina_List *l;
-    int i = 0;
     enews_src_t *src;
 
     if (azy_content_error_is_set(content)) {
@@ -210,20 +225,31 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
         }
     }
 
-    EINA_LIST_FOREACH(azy_rss_items_get(rss), l, it) {
+    EINA_LIST_FOREACH(azy_rss_items_steal(rss), l, item) {
         rss_item_t *rss_item;
+        const char *description;
+        const char *key;
+
+        key = azy_rss_item_key_get(item);
+        if (!key || eina_hash_find(src->items, key)) {
+            azy_rss_item_free(item);
+            continue;
+        }
 
         rss_item = calloc(1, sizeof(rss_item_t));
 
-        rss_item->description = extract_text_from_html(azy_rss_item_desc_get(it));
-        rss_item->title = azy_rss_item_title_get(it);
+        description = azy_rss_item_desc_get(item);
+        rss_item->title = azy_rss_item_title_get(item);
+        rss_item->description = extract_text_from_html(description);
         /* TODO: image from <media:content> ? */
 
-        i++;
-
         dashboard_item_add(rss_item);
-        /* TODO: free rss_item and item->description, and it?? */
+
+        eina_hash_add(src->items, key, rss_item);
     }
+
+    azy_rss_free(rss);
+    azy_content_free(content);
 
     return AZY_ERROR_NONE;
 }
@@ -259,10 +285,10 @@ _enews_src_connect(enews_src_t *src)
 {
     Azy_Net *net;
     assert(src);
-    assert(!src->cli);
 
     DBG("src->host='%s', src->uri='%s'", src->host, src->uri);
-    src->cli = azy_client_new();
+    if (!src->cli)
+        src->cli = azy_client_new();
     azy_client_host_set(src->cli, src->host, 80);
     azy_client_connect(src->cli, false);
     net = azy_client_net_get(src->cli);
@@ -324,7 +350,7 @@ _bt_add_rss_cb(Evas_Object *entry,
         }
     }
 
-    src = calloc(1, sizeof(enews_src_t));
+    src = enews_src_new();
     src->host = malloc((len + 1) * sizeof(char));
     memcpy((char*)src->host, addr, len);
     ((char*)src->host)[len] = '\0';
@@ -531,7 +557,6 @@ main(int argc, char **argv)
     }
 
     elm_init(argc, argv);
-
 
     enews_g.win = elm_win_add(NULL, "Enews RSS Reader", ELM_WIN_BASIC);
     elm_win_title_set(enews_g.win, "Enews");

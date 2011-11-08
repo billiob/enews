@@ -370,7 +370,7 @@ _tb_add_rss_cb(void *data __UNUSED__,
                Evas_Object *obj __UNUSED__,
                void *event_info __UNUSED__)
 {
-    Evas_Object *bx, *label, *bt, *entry, *f;
+    Evas_Object *bx, *label, *bt, *entry;
 
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
@@ -390,17 +390,13 @@ _tb_add_rss_cb(void *data __UNUSED__,
     evas_object_show(label);
 
     entry = elm_entry_add(enews_g.win);
+    elm_entry_scrollable_set(entry, true);
     elm_entry_editable_set(entry, true);
     elm_entry_single_line_set(entry, true);
-    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-    f = elm_frame_add(enews_g.win);
-    elm_object_content_set(f, entry);
-    evas_object_size_hint_weight_set(f, EVAS_HINT_EXPAND, 0.0);
-    evas_object_size_hint_fill_set(f, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, 0.);
+    evas_object_size_hint_fill_set(entry, EVAS_HINT_FILL, 0.5);
+    elm_box_pack_end(bx, entry);
     evas_object_show(entry);
-    elm_box_pack_end(bx, f);
-    evas_object_show(f);
 
     bt = elm_button_add(enews_g.win);
     elm_object_text_set(bt, "Add RSS");

@@ -284,6 +284,7 @@ static void
 _enews_src_connect(enews_src_t *src)
 {
     Azy_Net *net;
+
     assert(src);
 
     DBG("src->host='%s', src->uri='%s'", src->host, src->uri);
@@ -413,29 +414,25 @@ _tb_add_rss_cb(void *data __UNUSED__,
 /* }}} */
 /* Streams List {{{ */
 
-static struct {
-    Evas_Object *li;
-    Evas_Object *idx;
-} _streams_list_widgets;
-
 static void
-_streams_list_widget_hide(void *_ __UNUSED__)
+_streams_list_widget_hide(Evas_Object *bx)
 {
     if (enews_g.current_widget != STREAMS_LIST)
         return;
 
-    if (_streams_list_widgets.li) {
-        evas_object_del(_streams_list_widgets.li);
-        _streams_list_widgets.li = NULL;
-    }
-    if (_streams_list_widgets.idx) {
-        evas_object_del(_streams_list_widgets.idx);
-        _streams_list_widgets.idx = NULL;
-    }
+    evas_object_del(bx);
 
     enews_g.current_widget_hide = NULL;
     enews_g.cb_data = NULL;
     enews_g.current_widget = NONE;
+}
+
+static void
+_streams_list_cb(enews_src_t *src __UNUSED__,
+                 Evas_Object *obj __UNUSED__,
+                 Elm_List_Item *item __UNUSED__)
+{
+    /* TODO */
 }
 
 static void
@@ -451,17 +448,28 @@ _tb_streams_list_cb(void *data __UNUSED__,
                     Evas_Object *obj __UNUSED__,
                     void *event_info __UNUSED__)
 {
-    Evas_Object *li,
-                *idx;
+    Evas_Object *bx,
+                *li,
+                *idx,
+                *bx_info;
 
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
+
+    bx = elm_box_add(enews_g.win);
+    elm_box_homogeneous_set(bx, false);
+    elm_box_horizontal_set(bx, false);
+    evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    evas_object_show(bx);
+
+    elm_box_pack_end(enews_g.bx, bx);
 
     li = elm_list_add(enews_g.win);
     elm_list_always_select_mode_set(li, 1);
     evas_object_size_hint_weight_set(li, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_fill_set(li, EVAS_HINT_FILL, EVAS_HINT_FILL);
-    elm_box_pack_end(enews_g.bx, li);
+    elm_box_pack_end(bx, li);
     evas_object_show(li);
 
     idx = elm_index_add(enews_g.win);
@@ -482,18 +490,24 @@ _tb_streams_list_cb(void *data __UNUSED__,
         if (!label)
             continue;
 
-        it = elm_list_item_append(li, label, NULL, NULL, NULL, NULL);
+        it = elm_list_item_append(li, label, NULL, NULL,
+                                  (Evas_Smart_Cb)_streams_list_cb, src);
         letter[0] = label[0];
         elm_index_item_append(idx, letter, it);
-     }
+    }
     elm_index_item_go(idx, 0);
     elm_list_go(li);
 
-    _streams_list_widgets.li = li;
-    _streams_list_widgets.idx = idx;
+    bx_info = elm_box_add(enews_g.win);
+    elm_box_homogeneous_set(bx_info, false);
+    elm_box_horizontal_set(bx_info, false);
+    evas_object_size_hint_weight_set(bx_info, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_size_hint_fill_set(bx_info, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    elm_box_pack_end(bx, bx_info);
+    evas_object_show(bx);
 
     enews_g.current_widget_hide = (enews_hide_f)_streams_list_widget_hide;
-    enews_g.cb_data = NULL;
+    enews_g.cb_data = bx;
     enews_g.current_widget = STREAMS_LIST;
 }
 

@@ -416,6 +416,9 @@ _tb_add_rss_cb(void *data __UNUSED__,
 
 static Evas_Object *_bx_info = NULL;
 static Evas_Object *_bx_streams_list = NULL;
+static Evas_Object *_idx_streams = NULL;
+static Evas_Object *_hv_streams = NULL;
+static enews_src_t *_current_src = NULL;
 
 static void
 _streams_list_widget_hide(Evas_Object *bx)
@@ -424,21 +427,63 @@ _streams_list_widget_hide(Evas_Object *bx)
         return;
 
     evas_object_del(bx);
+    evas_object_del(_idx_streams);
+    evas_object_del(_hv_streams);
 
     enews_g.current_widget_hide = NULL;
     enews_g.cb_data = NULL;
     enews_g.current_widget = NONE;
     _bx_info = NULL;
     _bx_streams_list = NULL;
+    _idx_streams = NULL;
+    _current_src = NULL;
 }
 
 static void
-_bt_remove_rss_cb(enews_src_t *src,
-                  Evas_Object *obj __UNUSED__,
-                  void *event_info __UNUSED__)
+_bt_remove_rss_hover_cb(Evas_Object *hv,
+                        Evas_Object *obj __UNUSED__,
+                        void *event_info __UNUSED__)
 {
-    DBG("remove %s", src->title);
-    /* TODO */
+    evas_object_show(hv);
+}
+
+static void
+_bt_remove_rss_hover_no_cb(Evas_Object *hv,
+                           Evas_Object *obj __UNUSED__,
+                           void *event_info __UNUSED__)
+{
+    evas_object_hide(hv);
+}
+
+static void
+_bt_remove_rss_hover_yes_cb(Evas_Object *hv,
+                            Evas_Object *obj __UNUSED__,
+                            void *event_info __UNUSED__)
+{
+    Evas_Object *li;
+    Elm_List_Item *item;
+
+    if (!_current_src)
+        return;
+
+    EINA_LIST_REMOVE(_G.cfg->sources, _current_src);
+
+    li = elm_box_children_get(_bx_streams_list)->data;
+    item = elm_list_selected_item_get(li);
+    if (item) {
+        elm_index_item_del(_idx_streams, item);
+        elm_list_item_del(item);
+    }
+
+
+    _config_save();
+    _current_src = NULL;
+    evas_object_hide(hv);
+
+    evas_object_del(hv);
+    _hv_streams = NULL;
+    evas_object_del(_bx_info);
+    _bx_info = NULL;
 }
 
 static void
@@ -446,16 +491,12 @@ _streams_list_cb(enews_src_t *src,
                  Evas_Object *obj __UNUSED__,
                  Elm_List_Item *item __UNUSED__)
 {
-    Evas_Object *bt;
+    if (!_bx_info) {
+        Evas_Object *bt;
+        Evas_Object *hv;
 
-    if (_bx_info) {
-        const Eina_List *l = elm_box_children_get(_bx_info);
+        hv = elm_hover_add(enews_g.win);
 
-        bt = l->data;
-
-        evas_object_smart_callback_del(bt, "clicked",
-                                       (Evas_Smart_Cb)_bt_remove_rss_cb);
-    } else {
         _bx_info = elm_box_add(enews_g.win);
         elm_box_homogeneous_set(_bx_info, false);
         elm_box_horizontal_set(_bx_info, false);
@@ -465,13 +506,34 @@ _streams_list_cb(enews_src_t *src,
 
         bt = elm_button_add(enews_g.win);
         elm_object_text_set(bt, "Remove RSS");
+        evas_object_smart_callback_add(bt, "clicked",
+                                       (Evas_Smart_Cb)_bt_remove_rss_hover_cb,
+                                       hv);
+        elm_hover_parent_set(hv, enews_g.win);
+        elm_hover_target_set(hv, bt);
         elm_box_pack_end(_bx_info, bt);
         evas_object_show(bt);
+
+        bt = elm_button_add(enews_g.win);
+        elm_object_text_set(bt, "Yes");
+        elm_hover_content_set(hv, "left", bt);
+        evas_object_smart_callback_add(bt, "clicked",
+                                       (Evas_Smart_Cb)_bt_remove_rss_hover_yes_cb,
+                                       hv);
+        evas_object_show(bt);
+
+        bt = elm_button_add(enews_g.win);
+        elm_object_text_set(bt, "No");
+        elm_hover_content_set(hv, "right", bt);
+        evas_object_smart_callback_add(bt, "clicked",
+                                       (Evas_Smart_Cb)_bt_remove_rss_hover_no_cb,
+                                       hv);
+        evas_object_show(bt);
+
+        _hv_streams = hv;
     }
 
-    evas_object_smart_callback_add(bt, "clicked",
-                                   (Evas_Smart_Cb)_bt_remove_rss_cb, src);
-    evas_object_show(bt);
+    _current_src = src;
 }
 
 static void
@@ -540,6 +602,7 @@ _tb_streams_list_cb(void *data __UNUSED__,
     enews_g.cb_data = bx;
     enews_g.current_widget = STREAMS_LIST;
 
+    _idx_streams = idx;
     _bx_streams_list = bx;
 }
 

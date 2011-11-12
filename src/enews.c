@@ -414,6 +414,9 @@ _tb_add_rss_cb(void *data __UNUSED__,
 /* }}} */
 /* Streams List {{{ */
 
+static Evas_Object *_bx_info = NULL;
+static Evas_Object *_bx_streams_list = NULL;
+
 static void
 _streams_list_widget_hide(Evas_Object *bx)
 {
@@ -425,14 +428,50 @@ _streams_list_widget_hide(Evas_Object *bx)
     enews_g.current_widget_hide = NULL;
     enews_g.cb_data = NULL;
     enews_g.current_widget = NONE;
+    _bx_info = NULL;
+    _bx_streams_list = NULL;
 }
 
 static void
-_streams_list_cb(enews_src_t *src __UNUSED__,
+_bt_remove_rss_cb(enews_src_t *src,
+                  Evas_Object *obj __UNUSED__,
+                  void *event_info __UNUSED__)
+{
+    DBG("remove %s", src->title);
+    /* TODO */
+}
+
+static void
+_streams_list_cb(enews_src_t *src,
                  Evas_Object *obj __UNUSED__,
                  Elm_List_Item *item __UNUSED__)
 {
-    /* TODO */
+    Evas_Object *bt;
+
+    if (_bx_info) {
+        const Eina_List *l = elm_box_children_get(_bx_info);
+
+        bt = l->data;
+
+        evas_object_smart_callback_del(bt, "clicked",
+                                       (Evas_Smart_Cb)_bt_remove_rss_cb);
+    } else {
+        _bx_info = elm_box_add(enews_g.win);
+        elm_box_homogeneous_set(_bx_info, false);
+        elm_box_horizontal_set(_bx_info, false);
+        evas_object_size_hint_fill_set(_bx_info, EVAS_HINT_FILL, EVAS_HINT_FILL);
+        elm_box_pack_end(_bx_streams_list, _bx_info);
+        evas_object_show(_bx_info);
+
+        bt = elm_button_add(enews_g.win);
+        elm_object_text_set(bt, "Remove RSS");
+        elm_box_pack_end(_bx_info, bt);
+        evas_object_show(bt);
+    }
+
+    evas_object_smart_callback_add(bt, "clicked",
+                                   (Evas_Smart_Cb)_bt_remove_rss_cb, src);
+    evas_object_show(bt);
 }
 
 static void
@@ -450,8 +489,7 @@ _tb_streams_list_cb(void *data __UNUSED__,
 {
     Evas_Object *bx,
                 *li,
-                *idx,
-                *bx_info;
+                *idx;
 
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
@@ -498,17 +536,11 @@ _tb_streams_list_cb(void *data __UNUSED__,
     elm_index_item_go(idx, 0);
     elm_list_go(li);
 
-    bx_info = elm_box_add(enews_g.win);
-    elm_box_homogeneous_set(bx_info, false);
-    elm_box_horizontal_set(bx_info, false);
-    evas_object_size_hint_weight_set(bx_info, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(bx_info, EVAS_HINT_FILL, EVAS_HINT_FILL);
-    elm_box_pack_end(bx, bx_info);
-    evas_object_show(bx);
-
     enews_g.current_widget_hide = (enews_hide_f)_streams_list_widget_hide;
     enews_g.cb_data = bx;
     enews_g.current_widget = STREAMS_LIST;
+
+    _bx_streams_list = bx;
 }
 
 /* }}} */

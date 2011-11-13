@@ -537,11 +537,36 @@ _streams_list_cb(enews_src_t *src,
 }
 
 static void
-_index_changed(void *data __UNUSED__,
-               Evas_Object *obj __UNUSED__,
+_index_changed(Evas_Object *li __UNUSED__,
+               Evas_Object *idx __UNUSED__,
                Elm_List_Item *item)
 {
     elm_list_item_show(item);
+    elm_list_item_selected_set(item, true);
+}
+
+static void
+_list_index_move(Evas_Object *idx,
+                 Evas *e __UNUSED__,
+                 Evas_Object *li,
+                 void *event_info __UNUSED__)
+{
+    Evas_Coord x, y;
+
+    evas_object_geometry_get(li, &x, &y, NULL, NULL);
+    evas_object_move(idx, x, y);
+}
+
+static void
+_list_index_resize(Evas_Object *idx,
+                   Evas *e __UNUSED__,
+                   Evas_Object *li,
+                   void *event_info __UNUSED__)
+{
+    Evas_Coord w, h;
+
+    evas_object_geometry_get(li, NULL, NULL, &w, &h);
+    evas_object_resize(idx, w, h);
 }
 
 static void
@@ -572,11 +597,16 @@ _tb_streams_list_cb(void *data __UNUSED__,
     elm_box_pack_end(bx, li);
     evas_object_show(li);
 
-    idx = elm_index_add(enews_g.win);
+    idx = elm_index_add(li);
     evas_object_smart_callback_add(idx, "delay,changed",
-                                   (Evas_Smart_Cb)_index_changed, NULL);
+                                   (Evas_Smart_Cb)_index_changed, li);
     evas_object_size_hint_weight_set(idx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    elm_win_resize_object_add(enews_g.win, idx);
+    evas_object_event_callback_add(li, EVAS_CALLBACK_RESIZE,
+                                   (Evas_Object_Event_Cb)_list_index_resize,
+                                   idx);
+    evas_object_event_callback_add(li, EVAS_CALLBACK_MOVE,
+                                   (Evas_Object_Event_Cb)_list_index_move,
+                                   idx);
     evas_object_show(idx);
 
     for (Eina_List *l = _G.cfg->sources; l; l = l->next) {

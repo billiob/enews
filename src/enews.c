@@ -371,7 +371,11 @@ _tb_add_rss_cb(void *data __UNUSED__,
                Evas_Object *obj __UNUSED__,
                void *event_info __UNUSED__)
 {
-    Evas_Object *bx, *label, *bt, *entry;
+    Evas_Object *bx,
+                *label,
+                *bt,
+                *ic,
+                *entry;
 
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
@@ -399,7 +403,11 @@ _tb_add_rss_cb(void *data __UNUSED__,
     elm_box_pack_end(bx, entry);
     evas_object_show(entry);
 
+    ic = elm_icon_add(enews_g.win);
+    elm_icon_standard_set(ic, "add");
+    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
     bt = elm_button_add(enews_g.win);
+    elm_object_content_set(bt, ic);
     elm_object_text_set(bt, "Add RSS");
     elm_box_pack_end(bx, bt);
     evas_object_smart_callback_add(bt, "clicked",
@@ -492,8 +500,9 @@ _streams_list_cb(enews_src_t *src,
                  Elm_List_Item *item __UNUSED__)
 {
     if (!_bx_info) {
-        Evas_Object *bt;
-        Evas_Object *hv;
+        Evas_Object *bt,
+                    *hv,
+                    *ic;
 
         hv = elm_hover_add(enews_g.win);
 
@@ -504,7 +513,11 @@ _streams_list_cb(enews_src_t *src,
         elm_box_pack_end(_bx_streams_list, _bx_info);
         evas_object_show(_bx_info);
 
+        ic = elm_icon_add(enews_g.win);
+        elm_icon_standard_set(ic, "delete");
+        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
         bt = elm_button_add(enews_g.win);
+        elm_object_content_set(bt, ic);
         elm_object_text_set(bt, "Remove RSS");
         evas_object_smart_callback_add(bt, "clicked",
                                        (Evas_Smart_Cb)_bt_remove_rss_hover_cb,

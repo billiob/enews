@@ -53,4 +53,17 @@ enews_src_del(enews_src_t **p)
     }
 }
 
+const char *
+enews_src_title_get(const enews_src_t *src)
+{
+    assert(src);
+
+    if (src->title)
+        return src->title;
+    if (src->host)
+        return src->host;
+
+    return NULL;
+}
+
 /* }}} */

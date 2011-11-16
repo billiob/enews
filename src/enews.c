@@ -626,10 +626,9 @@ _tb_streams_list_cb(void *data __UNUSED__,
         enews_src_t *src = l->data;
         Elm_List_Item *it;
         char letter[2] = {'\0', '\0'};
-        const char *label = src->title;
+        const char *label;
 
-        if (!src->title)
-            label = src->host;
+        label = enews_src_title_get(src);
         if (!label)
             continue;
 

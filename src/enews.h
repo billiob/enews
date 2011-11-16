@@ -40,6 +40,7 @@ enews_src_t *enews_src_init(enews_src_t *src);
 enews_src_t *enews_src_new(void);
 enews_src_t *enews_src_wipe(enews_src_t *src);
 void enews_src_del(enews_src_t **p);
+const char* enews_src_title_get(const enews_src_t *src);
 
 typedef enum enews_widget_t {
     NONE,

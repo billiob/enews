@@ -237,6 +237,7 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
         }
 
         rss_item = calloc(1, sizeof(rss_item_t));
+        rss_item->src = src;
 
         description = azy_rss_item_desc_get(item);
         rss_item->title = azy_rss_item_title_get(item);

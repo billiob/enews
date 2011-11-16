@@ -16,17 +16,6 @@
 #define WARN(...) EINA_LOG_DOM_WARN(enews_g.log_domain, __VA_ARGS__)
 #define CRIT(...) EINA_LOG_DOM_CRIT(enews_g.log_domain, __VA_ARGS__)
 
-typedef struct rss_item_t {
-    const char *image;
-    const char *title;
-    char *description;
-
-    Azy_Rss_Item *item;
-
-    int pending_img_dl;
-} rss_item_t;
-void rss_item_free(rss_item_t *p);
-
 typedef struct {
     const char *host;
     const char *uri;
@@ -42,6 +31,19 @@ enews_src_t *enews_src_wipe(enews_src_t *src);
 void enews_src_del(enews_src_t **p);
 const char* enews_src_title_get(const enews_src_t *src);
 
+typedef struct rss_item_t {
+    const char *image;
+    const char *title;
+    char *description;
+
+    Azy_Rss_Item *item;
+
+    enews_src_t *src;
+
+    int pending_img_dl;
+} rss_item_t;
+
+void rss_item_free(rss_item_t *p);
 typedef enum enews_widget_t {
     NONE,
     DASHBOARD,

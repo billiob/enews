@@ -26,25 +26,18 @@ collections {
             part { name: "clip";
                 type: RECT;
                 mouse_events: 0;
-                scale: 1;
+                scale: 0;
                 description {
                     min: 100 300;
                     max: -1 300;
                     state: "default" 0.0;
-                    fixed: 0 1;
-                    rel1 {
-                        relative: 0.0 0.0;
-                    }
-                    rel2 {
-                        relative: 1.0 0;
-                        offset:   0 300;
-                    }
+                    fixed: 0 0;
                 }
             }
             part { name: "bg";
                 type: RECT;
                 mouse_events: 0;
-                scale: 1;
+                scale: 0;
                 clip_to: "clip";
                 description {
                     state: "default" 0.0;
@@ -52,9 +45,11 @@ collections {
                     fixed: 0 1;
                     rel1 {
                         relative: 0.0 0.0;
+                        to: "clip";
                     }
                     rel2 {
                         relative: 1.0 1.0;
+                        to: "clip";
                     }
                 }
             }
@@ -62,9 +57,11 @@ collections {
             part { name: "upperline";
                 type: RECT;
                 mouse_events: 0;
-                scale: 1;
+                scale: 0;
                 clip_to: "clip";
                 description {
+                    min: 100 4;
+                    max: -1 4;
                     state: "default" 0.0;
                     color: 8 8 8 255;
                     fixed: 0 1;
@@ -81,7 +78,7 @@ collections {
             part { name: "favicon";
                 type: SWALLOW;
                 mouse_events: 0;
-                scale: 1;
+                scale: 0;
                 clip_to: "clip";
                 description {
                     state: "default" 0.0;
@@ -102,7 +99,7 @@ collections {
             part { name: "hide";
                 type: SWALLOW;
                 mouse_events: 0;
-                scale: 1;
+                scale: 0;
                 clip_to: "clip";
                 description {
                     state: "default" 0.0;
@@ -128,6 +125,7 @@ collections {
                 description {
                     state: "default" 0.0;
                     align: 0 0;
+                    fixed: 0 1;
                     rel1 {
                         relative: 0.0  0.0;
                         to: "favicon";
@@ -154,6 +152,7 @@ collections {
                 entry_mode: NONE;
                 description {
                     state: "default" 0.0;
+                    fixed: 0 0;
                     align: 0 0;
                     rel1 {
                         relative: 0.0  1.0;
@@ -161,9 +160,9 @@ collections {
                         offset: 2 2;
                     }
                     rel2 {
-                        relative: 1.0  0.0;
-                        to_y: "clip";
-                        offset: -2 -2;
+                        relative: 1.0 0.0;
+                        to: "clip";
+                        offset: -2 0;
                     }
                     text {
                         text: "Intel may be giving up on smart TVs, ceding market to ARM";

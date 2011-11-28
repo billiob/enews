@@ -606,6 +606,7 @@ _tb_streams_list_cb(void *data __UNUSED__,
     elm_list_always_select_mode_set(li, 1);
     EXPAND(li);
     FILL(li);
+    elm_list_bounce_set(li, EINA_FALSE, EINA_FALSE);
     elm_box_pack_end(bx, li);
     evas_object_show(li);
 

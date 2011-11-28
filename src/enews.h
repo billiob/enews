@@ -78,9 +78,6 @@ void dashboard_initialize(void);
 void dashboard_item_add(const rss_item_t *item);
 void dashboard_show(void);
 
-/* Utils */
-char *extract_text_from_html(const char *src);
-
 #define EINA_LIST_IS_IN(_list, _el) \
     (eina_list_data_find(_list, _el) == _el)
 #define EINA_LIST_APPEND(_list, _el) \

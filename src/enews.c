@@ -668,8 +668,6 @@ _tb_dashboard_cb(void *data __UNUSED__,
 static void
 _toolbar_setup(void)
 {
-    Elm_Toolbar_Item *item;
-
     enews_g.tb = elm_toolbar_add(enews_g.win);
     elm_toolbar_homogeneous_set(enews_g.tb, false);
     elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
@@ -677,11 +675,11 @@ _toolbar_setup(void)
     elm_box_pack_start(enews_g.bx, enews_g.tb);
     evas_object_show(enews_g.tb);
 
-    item = elm_toolbar_item_append(enews_g.tb, "home", "Dashboard",
+    elm_toolbar_item_append(enews_g.tb, "home", "Dashboard",
                                    _tb_dashboard_cb, NULL);
-    item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
+    elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
                                    _tb_add_rss_cb, NULL);
-    item = elm_toolbar_item_append(enews_g.tb, "apps", "Streams",
+    elm_toolbar_item_append(enews_g.tb, "apps", "Streams",
                                    _tb_streams_list_cb, NULL);
 }
 

@@ -68,7 +68,6 @@ dashboard_item_add(const rss_item_t *item)
     edje_object_size_max_get(edj, &w, &h);
     evas_object_size_hint_max_set(edj, w, h);
 
-    WEIGHT(edj, 0, 0);
     ALIGN(edj, EVAS_HINT_FILL, 0);
 
     edje_object_part_text_set(edj, "title", item->title);

@@ -406,7 +406,6 @@ _tb_add_rss_cb(void *data __UNUSED__,
 
     ic = elm_icon_add(enews_g.win);
     elm_icon_standard_set(ic, "add");
-    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
     bt = elm_button_add(enews_g.win);
     elm_object_content_set(bt, ic);
     elm_object_text_set(bt, "Add RSS");
@@ -517,7 +516,6 @@ _streams_list_cb(enews_src_t *src,
 
         ic = elm_icon_add(enews_g.win);
         elm_icon_standard_set(ic, "delete");
-        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
         bt = elm_button_add(enews_g.win);
         elm_object_content_set(bt, ic);
         elm_object_text_set(bt, "Remove RSS");
@@ -675,7 +673,6 @@ _toolbar_setup(void)
     enews_g.tb = elm_toolbar_add(enews_g.win);
     elm_toolbar_homogeneous_set(enews_g.tb, false);
     elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
-    WEIGHT(enews_g.tb, 0.0, 0.0);
     ALIGN(enews_g.tb, EVAS_HINT_FILL, 0.0);
     elm_box_pack_start(enews_g.bx, enews_g.tb);
     evas_object_show(enews_g.tb);

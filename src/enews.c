@@ -189,7 +189,7 @@ azy_rss_item_key_get(Azy_Rss_Item *item)
 }
 
 static Eina_Error
-on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
+on_client_return(Azy_Client *cli, Azy_Content *content, void *ret __UNUSED__)
 {
     Azy_Rss *rss;
     Azy_Rss_Item *item;
@@ -241,7 +241,7 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
 
         description = azy_rss_item_desc_get(item);
         rss_item->title = azy_rss_item_title_get(item);
-        rss_item->description = extract_text_from_html(description);
+        rss_item->description = elm_entry_markup_to_utf8(description);
         /* TODO: image from <media:content> ? */
 
         dashboard_item_add(rss_item);
@@ -250,20 +250,19 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
     }
 
     azy_rss_free(rss);
-    azy_content_free(content);
 
     return AZY_ERROR_NONE;
 }
 
 static Eina_Bool
-on_disconnection(void *data , int type , Azy_Client *cli)
+on_disconnection(void *data __UNUSED__, int type __UNUSED__, Azy_Client *cli)
 {
     DBG("cli=%p", cli);
     return ECORE_CALLBACK_RENEW;
 }
 
 static Eina_Bool
-on_connection(void *data , int type , Azy_Client *cli)
+on_connection(void *data __UNUSED__, int type __UNUSED__, Azy_Client *cli)
 {
     Azy_Client_Call_Id id;
 
@@ -330,8 +329,8 @@ _bt_add_rss_cb(Evas_Object *entry,
     addr = elm_object_text_get(entry);
     if (!addr)
         return;
-    if (!strncmp(addr, "http://", strlen("http://"))) {
-        addr += strlen("http://");
+    if (!strncmp(addr, "http://", sizeof("http://") - 1)) {
+        addr += sizeof("http://") - 1;
     }
 
     uri = strchr(addr, '/');
@@ -384,8 +383,8 @@ _tb_add_rss_cb(void *data __UNUSED__,
     bx = elm_box_add(enews_g.win);
     elm_box_homogeneous_set(bx, false);
     elm_box_horizontal_set(bx, false);
-    evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    EXPAND(bx);
+    FILL(bx);
     evas_object_show(bx);
 
     elm_box_pack_end(enews_g.bx, bx);
@@ -399,14 +398,13 @@ _tb_add_rss_cb(void *data __UNUSED__,
     elm_entry_scrollable_set(entry, true);
     elm_entry_editable_set(entry, true);
     elm_entry_single_line_set(entry, true);
-    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, 0.);
-    evas_object_size_hint_fill_set(entry, EVAS_HINT_FILL, 0.5);
+    WEIGHT(entry, EVAS_HINT_EXPAND, 0.);
+    ALIGN(entry, EVAS_HINT_FILL, 0.5);
     elm_box_pack_end(bx, entry);
     evas_object_show(entry);
 
     ic = elm_icon_add(enews_g.win);
     elm_icon_standard_set(ic, "add");
-    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
     bt = elm_button_add(enews_g.win);
     elm_object_content_set(bt, ic);
     elm_object_text_set(bt, "Add RSS");
@@ -414,6 +412,7 @@ _tb_add_rss_cb(void *data __UNUSED__,
     evas_object_smart_callback_add(bt, "clicked",
                                    (Evas_Smart_Cb)_bt_add_rss_cb, entry);
     evas_object_show(bt);
+    elm_object_focus_set(entry, EINA_TRUE);
 
     enews_g.current_widget_hide = (enews_hide_f)_add_rss_widget_hide;
     enews_g.cb_data = bx;
@@ -510,13 +509,12 @@ _streams_list_cb(enews_src_t *src,
         _bx_info = elm_box_add(enews_g.win);
         elm_box_homogeneous_set(_bx_info, false);
         elm_box_horizontal_set(_bx_info, false);
-        evas_object_size_hint_fill_set(_bx_info, EVAS_HINT_FILL, EVAS_HINT_FILL);
+        FILL(_bx_info);
         elm_box_pack_end(_bx_streams_list, _bx_info);
         evas_object_show(_bx_info);
 
         ic = elm_icon_add(enews_g.win);
         elm_icon_standard_set(ic, "delete");
-        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
         bt = elm_button_add(enews_g.win);
         elm_object_content_set(bt, ic);
         elm_object_text_set(bt, "Remove RSS");
@@ -598,23 +596,24 @@ _tb_streams_list_cb(void *data __UNUSED__,
     bx = elm_box_add(enews_g.win);
     elm_box_homogeneous_set(bx, false);
     elm_box_horizontal_set(bx, false);
-    evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    EXPAND(bx);
+    FILL(bx);
     evas_object_show(bx);
 
     elm_box_pack_end(enews_g.bx, bx);
 
     li = elm_list_add(enews_g.win);
     elm_list_always_select_mode_set(li, 1);
-    evas_object_size_hint_weight_set(li, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(li, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    EXPAND(li);
+    FILL(li);
+    elm_list_bounce_set(li, EINA_FALSE, EINA_FALSE);
     elm_box_pack_end(bx, li);
     evas_object_show(li);
 
     idx = elm_index_add(li);
     evas_object_smart_callback_add(idx, "delay,changed",
                                    (Evas_Smart_Cb)_index_changed, li);
-    evas_object_size_hint_weight_set(idx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    EXPAND(idx);
     evas_object_event_callback_add(li, EVAS_CALLBACK_RESIZE,
                                    (Evas_Object_Event_Cb)_list_index_resize,
                                    idx);
@@ -669,21 +668,18 @@ _tb_dashboard_cb(void *data __UNUSED__,
 static void
 _toolbar_setup(void)
 {
-    Elm_Toolbar_Item *item;
-
     enews_g.tb = elm_toolbar_add(enews_g.win);
     elm_toolbar_homogeneous_set(enews_g.tb, false);
     elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
-    evas_object_size_hint_weight_set(enews_g.tb, 0.0, 0.0);
-    evas_object_size_hint_align_set(enews_g.tb, EVAS_HINT_FILL, 0.0);
+    ALIGN(enews_g.tb, EVAS_HINT_FILL, 0.0);
     elm_box_pack_start(enews_g.bx, enews_g.tb);
     evas_object_show(enews_g.tb);
 
-    item = elm_toolbar_item_append(enews_g.tb, "home", "Dashboard",
+    elm_toolbar_item_append(enews_g.tb, "home", "Dashboard",
                                    _tb_dashboard_cb, NULL);
-    item = elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
+    elm_toolbar_item_append(enews_g.tb, "add", "Add RSS",
                                    _tb_add_rss_cb, NULL);
-    item = elm_toolbar_item_append(enews_g.tb, "apps", "Streams",
+    elm_toolbar_item_append(enews_g.tb, "apps", "Streams",
                                    _tb_streams_list_cb, NULL);
 }
 
@@ -698,6 +694,7 @@ main(int argc, char **argv)
     eina_init();
     ecore_init();
     azy_init();
+    azy_rpc_log_enable();
 
     enews_g.log_domain = eina_log_domain_register("enews", NULL);
     if (enews_g.log_domain < 0) {
@@ -713,16 +710,14 @@ main(int argc, char **argv)
 
     bg = elm_bg_add(enews_g.win);
     elm_win_resize_object_add(enews_g.win, bg);
-    evas_object_size_hint_weight_set(bg, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    EXPAND(bg);
     evas_object_show(bg);
 
     enews_g.bx = elm_box_add(enews_g.win);
     elm_box_horizontal_set(enews_g.bx, false);
     elm_box_homogeneous_set(enews_g.bx, false);
-    evas_object_size_hint_weight_set(enews_g.bx,
-                                     EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(enews_g.bx, EVAS_HINT_FILL,
-                                   EVAS_HINT_FILL);
+    EXPAND(enews_g.bx);
+    FILL(enews_g.bx);
     elm_win_resize_object_add(enews_g.win, enews_g.bx);
     evas_object_show(enews_g.bx);
 

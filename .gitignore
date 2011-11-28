@@ -5,8 +5,8 @@
 ABOUT-NLS
 Makefile
 Makefile.in
-/data/enews.edj
-/src/enews
+enews.edj
+enews
 /aclocal.m4
 /autom4te.cache/
 /config.guess
@@ -70,7 +70,7 @@ Makefile.in
 /po/*.po~
 /po/remove-potcdate.sed
 /po/stamp-po
-/src/.deps/
-/src/.libs/
+.deps/
+.libs/
 /stamp-h1
 /compile

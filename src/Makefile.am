@@ -5,8 +5,7 @@ bin_PROGRAMS = enews
 enews_SOURCES =     \
 	enews.c     \
 	core.c      \
-	dashboard.c \
-	utils.c
+	dashboard.c
 
 enews_CFLAGS = \
 	-I$(top_srcdir)/src/lib \

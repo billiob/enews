@@ -330,8 +330,8 @@ _bt_add_rss_cb(Evas_Object *entry,
     addr = elm_object_text_get(entry);
     if (!addr)
         return;
-    if (!strncmp(addr, "http://", strlen("http://"))) {
-        addr += strlen("http://");
+    if (!strncmp(addr, "http://", sizeof("http://") - 1)) {
+        addr += sizeof("http://") - 1;
     }
 
     uri = strchr(addr, '/');

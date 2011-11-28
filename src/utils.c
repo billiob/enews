@@ -40,7 +40,7 @@ _skip_till_end_comment(const char *str)
     char *found = strstr(str, "-->");
 
     if (found)
-        str = found + strlen("-->");
+        str = found + sizeof("-->") - 1;
 
     return str;
 }
@@ -78,18 +78,19 @@ char *extract_text_from_html(const char *src)
             }
 
             for (int i = 0; html_tags[i]; i++) {
-                if (!strncasecmp(html_tags[i], src, strlen(html_tags[i])) &&
-                    !isalpha(*(src + strlen(html_tags[i])))) {
+                size_t len = strlen(html_tags[i]);
+                if (!strncasecmp(html_tags[i], src, len) &&
+                    !isalpha(*(src + len))) {
 
-                    src += strlen(html_tags[i]);
-                    if (!strncmp(html_tags[i], "!--", strlen("!--"))) {
+                    src += len;
+                    if (!strncmp(html_tags[i], "!--", sizeof("!--") - 1)) {
                         src = _skip_till_end_comment(src);
                         break;
                     }
                     src = _skip_till_end_html_mark(src);
-                    if (!strncmp(html_tags[i], "br", strlen("br")))
+                    if (!strncmp(html_tags[i], "br", sizeof("br") - 1))
                         eina_strbuf_append_char(sb, '\n');
-                    if (!strncmp(html_tags[i], "p", strlen("p")))
+                    if (!strncmp(html_tags[i], "p", sizeof("p") - 1))
                         eina_strbuf_append_char(sb, ' ');
                     break;
                 }

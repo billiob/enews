@@ -59,8 +59,17 @@ dashboard_item_add(const rss_item_t *item)
 
     edj = edje_object_add(evas_object_evas_get(enews_g.win));
 
-    edje_object_file_set(edj, DATADIR"/enews/enews.edj",
-                         "enews/dashboard/item");
+    if (!edje_object_file_set(edj, DATADIR "/enews/enews.edj",
+                         "enews/dashboard/item"))
+      {
+         if (!edje_object_file_set(edj, "data/theme/enews.edj",
+                         "enews/dashboard/item"))
+           {
+              if (!edje_object_file_set(edj, "enews.edj",
+                         "enews/dashboard/item"))
+                CRIT("Could not load theme!");
+           }
+      }
 
     edje_object_size_min_get(edj, &w, &h);
     evas_object_size_hint_min_set(edj, w, h);

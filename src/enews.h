@@ -16,6 +16,11 @@
 #define WARN(...) EINA_LOG_DOM_WARN(enews_g.log_domain, __VA_ARGS__)
 #define CRIT(...) EINA_LOG_DOM_CRIT(enews_g.log_domain, __VA_ARGS__)
 
+#define WEIGHT evas_object_size_hint_weight_set
+#define ALIGN evas_object_size_hint_align_set
+#define EXPAND(X) WEIGHT((X), EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
+#define FILL(X) ALIGN((X), EVAS_HINT_FILL, EVAS_HINT_FILL)
+
 typedef struct {
     const char *host;
     const char *uri;

@@ -694,6 +694,7 @@ main(int argc, char **argv)
     eina_init();
     ecore_init();
     azy_init();
+    azy_rpc_log_enable();
 
     enews_g.log_domain = eina_log_domain_register("enews", NULL);
     if (enews_g.log_domain < 0) {

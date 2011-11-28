@@ -189,7 +189,7 @@ azy_rss_item_key_get(Azy_Rss_Item *item)
 }
 
 static Eina_Error
-on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
+on_client_return(Azy_Client *cli, Azy_Content *content, void *ret __UNUSED__)
 {
     Azy_Rss *rss;
     Azy_Rss_Item *item;
@@ -256,14 +256,14 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret)
 }
 
 static Eina_Bool
-on_disconnection(void *data , int type , Azy_Client *cli)
+on_disconnection(void *data __UNUSED__, int type __UNUSED__, Azy_Client *cli)
 {
     DBG("cli=%p", cli);
     return ECORE_CALLBACK_RENEW;
 }
 
 static Eina_Bool
-on_connection(void *data , int type , Azy_Client *cli)
+on_connection(void *data __UNUSED__, int type __UNUSED__, Azy_Client *cli)
 {
     Azy_Client_Call_Id id;
 

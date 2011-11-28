@@ -384,8 +384,8 @@ _tb_add_rss_cb(void *data __UNUSED__,
     bx = elm_box_add(enews_g.win);
     elm_box_homogeneous_set(bx, false);
     elm_box_horizontal_set(bx, false);
-    evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    EXPAND(bx);
+    FILL(bx);
     evas_object_show(bx);
 
     elm_box_pack_end(enews_g.bx, bx);
@@ -399,8 +399,8 @@ _tb_add_rss_cb(void *data __UNUSED__,
     elm_entry_scrollable_set(entry, true);
     elm_entry_editable_set(entry, true);
     elm_entry_single_line_set(entry, true);
-    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, 0.);
-    evas_object_size_hint_fill_set(entry, EVAS_HINT_FILL, 0.5);
+    WEIGHT(entry, EVAS_HINT_EXPAND, 0.);
+    ALIGN(entry, EVAS_HINT_FILL, 0.5);
     elm_box_pack_end(bx, entry);
     evas_object_show(entry);
 
@@ -511,7 +511,7 @@ _streams_list_cb(enews_src_t *src,
         _bx_info = elm_box_add(enews_g.win);
         elm_box_homogeneous_set(_bx_info, false);
         elm_box_horizontal_set(_bx_info, false);
-        evas_object_size_hint_fill_set(_bx_info, EVAS_HINT_FILL, EVAS_HINT_FILL);
+        FILL(_bx_info);
         elm_box_pack_end(_bx_streams_list, _bx_info);
         evas_object_show(_bx_info);
 
@@ -599,23 +599,23 @@ _tb_streams_list_cb(void *data __UNUSED__,
     bx = elm_box_add(enews_g.win);
     elm_box_homogeneous_set(bx, false);
     elm_box_horizontal_set(bx, false);
-    evas_object_size_hint_weight_set(bx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(bx, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    EXPAND(bx);
+    FILL(bx);
     evas_object_show(bx);
 
     elm_box_pack_end(enews_g.bx, bx);
 
     li = elm_list_add(enews_g.win);
     elm_list_always_select_mode_set(li, 1);
-    evas_object_size_hint_weight_set(li, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(li, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    EXPAND(li);
+    FILL(li);
     elm_box_pack_end(bx, li);
     evas_object_show(li);
 
     idx = elm_index_add(li);
     evas_object_smart_callback_add(idx, "delay,changed",
                                    (Evas_Smart_Cb)_index_changed, li);
-    evas_object_size_hint_weight_set(idx, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    EXPAND(idx);
     evas_object_event_callback_add(li, EVAS_CALLBACK_RESIZE,
                                    (Evas_Object_Event_Cb)_list_index_resize,
                                    idx);
@@ -675,8 +675,8 @@ _toolbar_setup(void)
     enews_g.tb = elm_toolbar_add(enews_g.win);
     elm_toolbar_homogeneous_set(enews_g.tb, false);
     elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
-    evas_object_size_hint_weight_set(enews_g.tb, 0.0, 0.0);
-    evas_object_size_hint_align_set(enews_g.tb, EVAS_HINT_FILL, 0.0);
+    WEIGHT(enews_g.tb, 0.0, 0.0);
+    ALIGN(enews_g.tb, EVAS_HINT_FILL, 0.0);
     elm_box_pack_start(enews_g.bx, enews_g.tb);
     evas_object_show(enews_g.tb);
 
@@ -714,16 +714,14 @@ main(int argc, char **argv)
 
     bg = elm_bg_add(enews_g.win);
     elm_win_resize_object_add(enews_g.win, bg);
-    evas_object_size_hint_weight_set(bg, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    EXPAND(bg);
     evas_object_show(bg);
 
     enews_g.bx = elm_box_add(enews_g.win);
     elm_box_horizontal_set(enews_g.bx, false);
     elm_box_homogeneous_set(enews_g.bx, false);
-    evas_object_size_hint_weight_set(enews_g.bx,
-                                     EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-    evas_object_size_hint_fill_set(enews_g.bx, EVAS_HINT_FILL,
-                                   EVAS_HINT_FILL);
+    EXPAND(enews_g.bx);
+    FILL(enews_g.bx);
     elm_win_resize_object_add(enews_g.win, enews_g.bx);
     evas_object_show(enews_g.bx);
 

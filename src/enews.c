@@ -250,7 +250,6 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret __UNUSED__)
     }
 
     azy_rss_free(rss);
-    azy_content_free(content);
 
     return AZY_ERROR_NONE;
 }

@@ -414,6 +414,7 @@ _tb_add_rss_cb(void *data __UNUSED__,
     evas_object_smart_callback_add(bt, "clicked",
                                    (Evas_Smart_Cb)_bt_add_rss_cb, entry);
     evas_object_show(bt);
+    elm_object_focus_set(entry, EINA_TRUE);
 
     enews_g.current_widget_hide = (enews_hide_f)_add_rss_widget_hide;
     enews_g.cb_data = bx;

@@ -46,35 +46,19 @@ dashboard_initialize(void)
 void
 dashboard_item_add(const rss_item_t *item)
 {
-    Evas_Object *edj;
-    Evas_Coord w, h;
+    Evas_Object *ly;
 
-    edj = edje_object_add(evas_object_evas_get(enews_g.win));
+    ly = elm_layout_add(enews_g.win);
+    elm_layout_file_set(ly, DATADIR"/enews/enews.edj",
+                        "enews/dashboard/item");
 
-    if (!edje_object_file_set(edj, DATADIR "/enews/enews.edj",
-                         "enews/dashboard/item"))
-      {
-         if (!edje_object_file_set(edj, "data/theme/enews.edj",
-                         "enews/dashboard/item"))
-           {
-              if (!edje_object_file_set(edj, "enews.edj",
-                         "enews/dashboard/item"))
-                CRIT("Could not load theme!");
-           }
-      }
+    ALIGN(ly, EVAS_HINT_FILL, 0);
 
-    edje_object_size_min_get(edj, &w, &h);
-    evas_object_size_hint_min_set(edj, w, h);
-    edje_object_size_max_get(edj, &w, &h);
-    evas_object_size_hint_max_set(edj, w, h);
+    elm_object_part_text_set(ly, "title", item->title);
+    elm_object_part_text_set(ly, "content", item->description);
 
-    ALIGN(edj, EVAS_HINT_FILL, 0);
-
-    edje_object_part_text_set(edj, "title", item->title);
-    edje_object_part_text_set(edj, "content", item->description);
-
-    elm_box_pack_end(_G.bx, edj);
-    evas_object_show(edj);
+    elm_box_pack_end(_G.bx, ly);
+    evas_object_show(ly);
 }
 
 void

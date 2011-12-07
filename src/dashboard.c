@@ -54,6 +54,7 @@ dashboard_item_add(const rss_item_t *item)
 
     ALIGN(ly, EVAS_HINT_FILL, 0);
 
+    elm_object_part_text_set(ly, "host", enews_src_title_get(item->src));
     elm_object_part_text_set(ly, "title", item->title);
     elm_object_part_text_set(ly, "content", item->description);
 

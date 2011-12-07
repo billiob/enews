@@ -43,10 +43,22 @@ dashboard_initialize(void)
     enews_g.current_widget = DASHBOARD;
 }
 
+static void
+_closed_cb(const rss_item_t *item,
+           Evas_Object *obj,
+           void *event_info __UNUSED__)
+{
+    Evas_Object *ly = elm_object_parent_widget_get(obj);
+    evas_object_del(ly);
+
+    /* TODO: mark rss_item as read or whatever needed */
+}
+
 void
 dashboard_item_add(const rss_item_t *item)
 {
-    Evas_Object *ly;
+    Evas_Object *ly,
+                *ic;
 
     ly = elm_layout_add(enews_g.win);
     elm_layout_file_set(ly, DATADIR"/enews/enews.edj",
@@ -57,6 +69,13 @@ dashboard_item_add(const rss_item_t *item)
     elm_object_part_text_set(ly, "host", enews_src_title_get(item->src));
     elm_object_part_text_set(ly, "title", item->title);
     elm_object_part_text_set(ly, "content", item->description);
+
+    ic = elm_icon_add(enews_g.win);
+    elm_icon_standard_set(ic, "close");
+    elm_object_part_content_set(ly, "hide", ic);
+    evas_object_show(ic);
+    evas_object_smart_callback_add(ic, "clicked",
+                                   (Evas_Smart_Cb)_closed_cb, item);
 
     elm_box_pack_end(_G.bx, ly);
     evas_object_show(ly);

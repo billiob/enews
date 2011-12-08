@@ -70,6 +70,8 @@ struct enews_g {
     enews_widget_t current_widget;
     enews_hide_f current_widget_hide;
     void *cb_data;
+
+    bool has_elm_web;
 };
 extern struct enews_g enews_g;
 

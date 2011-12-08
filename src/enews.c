@@ -707,6 +707,14 @@ main(int argc, char **argv)
 
     elm_init(argc, argv);
 
+
+    enews_g.has_elm_web = elm_need_web();
+    if (enews_g.has_elm_web) {
+        INFO("Elm web is enabled");
+    } else {
+        INFO("Elm web is disabled");
+    }
+
     enews_g.win = elm_win_add(NULL, "Enews RSS Reader", ELM_WIN_BASIC);
     elm_win_title_set(enews_g.win, "Enews");
     elm_win_autodel_set(enews_g.win, true);

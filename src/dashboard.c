@@ -54,11 +54,31 @@ _closed_cb(const rss_item_t *item,
     /* TODO: mark rss_item as read or whatever needed */
 }
 
+static void
+_read_cb(const rss_item_t *item,
+         Evas_Object *ly,
+         const char  *emission,
+         const char  *source)
+{
+    /* TODO: mark rss_item as read or whatever needed */
+    DBG("title: %s", item->title);
+}
+
+static void
+_host_cb(const rss_item_t *item,
+         Evas_Object *ly,
+         const char  *emission,
+         const char  *source)
+{
+    /* TODO: show a dashboard with only items from that stream */
+}
+
 void
 dashboard_item_add(const rss_item_t *item)
 {
     Evas_Object *ly,
-                *ic;
+                *ic,
+                *edj;
 
     ly = elm_layout_add(enews_g.win);
     elm_layout_file_set(ly, DATADIR"/enews/enews.edj",
@@ -76,6 +96,14 @@ dashboard_item_add(const rss_item_t *item)
     evas_object_show(ic);
     evas_object_smart_callback_add(ic, "clicked",
                                    (Evas_Smart_Cb)_closed_cb, item);
+
+    edj = elm_layout_edje_get(ly);
+    edje_object_signal_callback_add(edj, "mouse,up,1", "title",
+                                   (Edje_Signal_Cb)_read_cb, (void *)item);
+    edje_object_signal_callback_add(edj, "mouse,up,1", "content",
+                                   (Edje_Signal_Cb)_read_cb, (void *)item);
+    edje_object_signal_callback_add(edj, "mouse,up,1", "host",
+                                   (Edje_Signal_Cb)_host_cb, (void *)item);
 
     elm_box_pack_end(_G.bx, ly);
     evas_object_show(ly);

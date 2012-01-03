@@ -242,6 +242,7 @@ on_client_return(Azy_Client *cli, Azy_Content *content, void *ret __UNUSED__)
         description = azy_rss_item_desc_get(item);
         rss_item->title = azy_rss_item_title_get(item);
         rss_item->description = elm_entry_markup_to_utf8(description);
+        rss_item->url = azy_rss_item_link_get(item);
         /* TODO: image from <media:content> ? */
 
         dashboard_item_add(rss_item);

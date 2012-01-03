@@ -40,6 +40,7 @@ typedef struct rss_item_t {
     const char *image;
     const char *title;
     char *description;
+    const char *url;
 
     Azy_Rss_Item *item;
 

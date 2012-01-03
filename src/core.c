@@ -67,3 +67,48 @@ enews_src_title_get(const enews_src_t *src)
 }
 
 /* }}} */
+
+/* webkit {{{ */
+
+static void
+_web_widget_hide(Evas_Object *web)
+{
+    evas_object_del(web);
+
+    enews_g.current_widget_hide = NULL;
+    enews_g.cb_data = NULL;
+    enews_g.current_widget = NONE;
+}
+
+static void rss_item_show_web(const rss_item_t *item)
+{
+    Evas_Object *web;
+
+    if (enews_g.current_widget_hide)
+        enews_g.current_widget_hide(enews_g.cb_data);
+
+
+    web = elm_web_add(enews_g.win);
+    DBG("displaying '%s'", item->url);
+    elm_web_uri_set(web, item->url);
+    EXPAND(web);
+    FILL(web);
+    evas_object_show(web);
+
+    elm_box_pack_end(enews_g.bx, web);
+
+    enews_g.current_widget_hide = (enews_hide_f)_web_widget_hide;
+    enews_g.cb_data = web;
+    enews_g.current_widget = WEB;
+}
+
+/* }}} */
+
+void rss_item_show(const rss_item_t *item)
+{
+    if (enews_g.has_elm_web) { // TODO: and conf to use webkit
+        rss_item_show_web(item);
+    } else {
+        /* TODO: use xdg */
+    }
+}

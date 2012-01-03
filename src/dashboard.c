@@ -62,6 +62,8 @@ _read_cb(const rss_item_t *item,
 {
     /* TODO: mark rss_item as read or whatever needed */
     DBG("title: %s", item->title);
+    evas_object_del(ly);
+    rss_item_show(item);
 }
 
 static void

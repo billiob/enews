@@ -50,13 +50,15 @@ typedef struct rss_item_t {
 } rss_item_t;
 
 void rss_item_free(rss_item_t *p);
+void rss_item_show(const rss_item_t *item);
+
 typedef enum enews_widget_t {
     NONE,
     DASHBOARD,
     ADD_RSS,
     STREAMS_LIST,
+    WEB,
 
-    ENEWS_SCREENS_COUNT
 } enews_widget_t;
 
 typedef void (*enews_hide_f)(void *data);

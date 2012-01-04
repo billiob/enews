@@ -83,10 +83,14 @@ _web_widget_hide(Evas_Object *web)
 static void rss_item_show_web(const rss_item_t *item)
 {
     Evas_Object *web;
+    Elm_Object_Item *tb_item;
 
     if (enews_g.current_widget_hide)
         enews_g.current_widget_hide(enews_g.cb_data);
 
+    tb_item = elm_toolbar_selected_item_get(enews_g.tb);
+    if (tb_item)
+        elm_toolbar_item_selected_set(tb_item, false);
 
     web = elm_web_add(enews_g.win);
     DBG("displaying '%s'", item->url);

@@ -7,7 +7,7 @@ enews_SOURCES =     \
 	core.c      \
 	dashboard.c
 
-enews_CFLAGS = \
+AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_builddir)/src/lib \
 	-DPACKAGE_LIB_DIR=\"$(libdir)\" \
@@ -15,7 +15,7 @@ enews_CFLAGS = \
 	-DPACKAGE_DATA_DIR=\"$(datadir)\"\
 	@ENEWS_CFLAGS@
 
-enews_LDADD = \
+LDADD = \
 	@ENEWS_LIBS@
 
 clean-local:

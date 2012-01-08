@@ -133,7 +133,7 @@ collections {
                         offset: 2 0;
                     }
                     rel2 {
-                        relative: 1.0 1.0;
+                        relative: 0.0 1.0;
                         to: "hide";
                         offset: -2 0;
                     }

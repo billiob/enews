@@ -675,7 +675,7 @@ _toolbar_setup(void)
 {
     enews_g.tb = elm_toolbar_add(enews_g.win);
     elm_toolbar_homogeneous_set(enews_g.tb, false);
-    elm_toolbar_mode_shrink_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
+    elm_toolbar_shrink_mode_set(enews_g.tb, ELM_TOOLBAR_SHRINK_MENU);
     ALIGN(enews_g.tb, EVAS_HINT_FILL, 0.0);
     elm_box_pack_start(enews_g.bx, enews_g.tb);
     evas_object_show(enews_g.tb);

@@ -70,6 +70,7 @@ _config_init(void)
     SRC_ADD_BASIC(host,  EET_T_STRING);
     SRC_ADD_BASIC(uri,   EET_T_STRING);
     SRC_ADD_BASIC(title, EET_T_STRING);
+    SRC_ADD_BASIC(port, EET_T_USHORT);
 #undef SRC_ADD_BASIC
 }
 
@@ -288,10 +289,11 @@ _enews_src_connect(enews_src_t *src)
 
     assert(src);
 
-    DBG("src->host='%s', src->uri='%s'", src->host, src->uri);
+    DBG("src->host='%s', src->uri='%s', src->port='%d'",
+        src->host, src->uri, src->port);
     if (!src->cli)
         src->cli = azy_client_new();
-    azy_client_host_set(src->cli, src->host, 80);
+    azy_client_host_set(src->cli, src->host, src->port);
     azy_client_connect(src->cli, false);
     net = azy_client_net_get(src->cli);
     azy_net_uri_set(net, src->uri);
@@ -354,8 +356,8 @@ _bt_add_rss_cb(Evas_Object *entry,
 
     src = enews_src_new();
     src->host = malloc((len + 1) * sizeof(char));
-    memcpy((char*)src->host, addr, len);
-    ((char*)src->host)[len] = '\0';
+    memcpy(src->host, addr, len);
+    src->host[len] = '\0';
     src->uri = strdup(uri);
 
     EINA_LIST_APPEND(_G.cfg->sources, src);

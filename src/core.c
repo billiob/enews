@@ -16,6 +16,23 @@ enews_src_init_from_conf(enews_src_t *src)
 {
     src->items = eina_hash_string_djb2_new((Eina_Free_Cb)rss_item_free);
 
+    if (src->port == 0) {
+        char *pos = strchr(src->host, ':');
+
+        src->port = 80;
+
+        if (pos) {
+            char *new_host;
+            size_t len = pos - src->host;
+
+            new_host = malloc(sizeof(char) * (len + 1));
+            memcpy(new_host, src->host, len);
+            new_host[len] = '\0';
+            src->port = atoi(pos+1);
+            src->host = new_host;
+        }
+    }
+
     return src;
 }
 

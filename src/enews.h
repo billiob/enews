@@ -22,9 +22,10 @@
 #define FILL(X) ALIGN((X), EVAS_HINT_FILL, EVAS_HINT_FILL)
 
 typedef struct {
-    const char *host;
-    const char *uri;
-    const char *title;
+    char *host;
+    char *uri;
+    uint16_t    port;
+    char *title;
     Azy_Client *cli;
     Eina_Hash  *items; // rss_item_t
 } enews_src_t;

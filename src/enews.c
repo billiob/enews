@@ -472,7 +472,7 @@ _bt_remove_rss_hover_yes_cb(Evas_Object *hv,
                             void *event_info __UNUSED__)
 {
     Evas_Object *li;
-    Elm_List_Item *item;
+    Elm_Object_Item *item;
 
     if (!_current_src)
         return;
@@ -486,7 +486,7 @@ _bt_remove_rss_hover_yes_cb(Evas_Object *hv,
 
         idx_item = elm_index_item_find(_idx_streams, item);
         if (idx_item)
-            elm_index_item_del(_idx_streams, idx_item);
+            elm_object_item_del(idx_item);
         elm_list_item_del(item);
     }
 
@@ -504,7 +504,7 @@ _bt_remove_rss_hover_yes_cb(Evas_Object *hv,
 static void
 _streams_list_cb(enews_src_t *src,
                  Evas_Object *obj __UNUSED__,
-                 Elm_List_Item *item __UNUSED__)
+                 Elm_Object_Item *item __UNUSED__)
 {
     if (!_bx_info) {
         Evas_Object *bt,
@@ -535,7 +535,7 @@ _streams_list_cb(enews_src_t *src,
 
         bt = elm_button_add(enews_g.win);
         elm_object_text_set(bt, "Yes");
-        elm_hover_content_set(hv, "left", bt);
+        elm_object_part_content_set(hv, "left", bt);
         evas_object_smart_callback_add(bt, "clicked",
                                        (Evas_Smart_Cb)_bt_remove_rss_hover_yes_cb,
                                        hv);
@@ -543,7 +543,7 @@ _streams_list_cb(enews_src_t *src,
 
         bt = elm_button_add(enews_g.win);
         elm_object_text_set(bt, "No");
-        elm_hover_content_set(hv, "right", bt);
+        elm_object_part_content_set(hv, "right", bt);
         evas_object_smart_callback_add(bt, "clicked",
                                        (Evas_Smart_Cb)_bt_remove_rss_hover_no_cb,
                                        hv);
@@ -558,7 +558,7 @@ _streams_list_cb(enews_src_t *src,
 static void
 _index_changed(Evas_Object *li __UNUSED__,
                Evas_Object *idx __UNUSED__,
-               Elm_List_Item *item)
+               Elm_Object_Item *item)
 {
     elm_list_item_show(item);
     elm_list_item_selected_set(item, true);
@@ -631,7 +631,7 @@ _tb_streams_list_cb(void *data __UNUSED__,
 
     for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
         enews_src_t *src = l->data;
-        Elm_List_Item *it;
+        Elm_Object_Item *it;
         char letter[2] = {'\0', '\0'};
         const char *label;
 

@@ -324,9 +324,10 @@ _bt_add_rss_cb(Evas_Object *entry,
                void *event_info __UNUSED__)
 {
     const char *addr;
-    char *uri;
+    char *uri, *host, *pos;
     enews_src_t *src;
-    int len;
+    size_t len;
+    uint16_t port = 80;
     /* How do i handle failures? hover-popup? */
 
     addr = elm_object_text_get(entry);
@@ -336,13 +337,25 @@ _bt_add_rss_cb(Evas_Object *entry,
         addr += sizeof("http://") - 1;
     }
 
-    uri = strchr(addr, '/');
-    if (!uri) {
-        ERR("invalid rss address '%s'", addr);
-        return;
-    }
+    pos = strchr(addr, ':');
+    if (pos) {
+        long lport;
 
-    len = uri - addr;
+        lport = strtol(pos+1, &uri, 10);
+        if (lport <= 0 || lport >= UINT16_MAX) {
+            ERR("invalid rss address '%s': invalid port", addr);
+            return;
+        }
+        port = lport;
+        len = pos - addr;
+    } else {
+        uri = strchr(addr, '/');
+        if (!uri) {
+            ERR("invalid rss address '%s'", addr);
+            return;
+        }
+        len = uri - addr;
+    }
 
     /* check not to add twice */
     for (Eina_List *l = _G.cfg->sources; l; l = l->next) {
@@ -358,6 +371,8 @@ _bt_add_rss_cb(Evas_Object *entry,
     src->host = malloc((len + 1) * sizeof(char));
     memcpy(src->host, addr, len);
     src->host[len] = '\0';
+    src->port = port;
+
     src->uri = strdup(uri);
 
     EINA_LIST_APPEND(_G.cfg->sources, src);

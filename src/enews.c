@@ -487,7 +487,7 @@ _bt_remove_rss_hover_yes_cb(Evas_Object *hv,
         idx_item = elm_index_item_find(_idx_streams, item);
         if (idx_item)
             elm_object_item_del(idx_item);
-        elm_list_item_del(item);
+        elm_object_item_del(item);
     }
 
 

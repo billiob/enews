@@ -771,7 +771,7 @@ main(int argc, char **argv)
                             (Ecore_Event_Handler_Cb)on_disconnection,
                             NULL);
 
-    evas_object_resize(enews_g.win, 480, 800);
+    evas_object_resize(enews_g.win, 480, 750);
     evas_object_show(enews_g.win);
 
     elm_run();

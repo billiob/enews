@@ -324,7 +324,7 @@ _bt_add_rss_cb(Evas_Object *entry,
                void *event_info __UNUSED__)
 {
     const char *addr;
-    char *uri, *host, *pos;
+    char *uri, *pos;
     enews_src_t *src;
     size_t len;
     uint16_t port = 80;
